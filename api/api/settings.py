@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'service',
 ]
 
@@ -78,9 +79,10 @@ WSGI_APPLICATION = 'api.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'postgres',
-        'USER': 'postgres',
+        'USER': 'docker',
+        'PASSWORD': 'docker',
         'HOST': 'db',
         'PORT': 5432,
     },
@@ -88,7 +90,7 @@ DATABASES = {
 
 if 'test' in sys.argv or 'test_coverage' in sys.argv:
     DATABASES['default'] = {
-        'ENGINE': 'django.db.backends.sqlite3'
+        'ENGINE': 'django.contrib.gis.db.backends.spatialite'
     }
 
 
@@ -129,3 +131,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Mac OS specific
+if os.name == 'Darwin':
+    SPATIALITE_LIBRARY_PATH = '/usr/local/lib/mod_spatialite.dylib'
