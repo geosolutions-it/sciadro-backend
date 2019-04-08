@@ -108,3 +108,5 @@ venv.bak/
 
 # Mac OS
 .DS_Store
+
+nohup.out

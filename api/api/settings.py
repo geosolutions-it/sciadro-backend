@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    'rest_framework',
     'service',
 ]
 
@@ -88,10 +89,10 @@ DATABASES = {
     },
 }
 
-if 'test' in sys.argv or 'test_coverage' in sys.argv:
-    DATABASES['default'] = {
-        'ENGINE': 'django.contrib.gis.db.backends.spatialite'
-    }
+
+if os.getenv('TEST', False):
+    DATABASES['default']['HOST'] = 'test-db'
+    DATABASES['default']['PORT'] = 5432
 
 
 # Password validation
@@ -131,7 +132,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-
-# Mac OS specific
-if os.name == 'Darwin':
-    SPATIALITE_LIBRARY_PATH = '/usr/local/lib/mod_spatialite.dylib'
