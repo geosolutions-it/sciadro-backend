@@ -15,21 +15,6 @@ from django.db.models import FileField
 from api.api.settings import DEFAULT_SRID
 
 
-class Mission(Model):
-    class Meta:
-        db_table = "missions"
-
-    id = UUIDField(primary_key=True, default=uuid4, editable=False)
-    name = CharField(max_length=120)
-    description = TextField(blank=True, null=True)
-    note = TextField(blank=True, null=True)
-    created = DateTimeField(auto_now_add=True)
-    # Geometry (path, point)
-    point = PointField(blank=True, null=True, srid=DEFAULT_SRID)
-    # or
-    line = LineStringField(blank=True, null=True, srid=DEFAULT_SRID)
-
-
 class Asset(Model):
     class Meta:
         db_table = "assets"
@@ -44,8 +29,6 @@ class Asset(Model):
         (ELECTRIC_TRUSS, 'Electric truss'),
     )
 
-    mission = ForeignKey(Mission, related_name='assets', on_delete=CASCADE)
-
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     type = CharField(max_length=3, choices=TYPE_CHOICES, blank=False, null=True)
     name = CharField(max_length=120, blank=True, null=True)
@@ -59,11 +42,28 @@ class Asset(Model):
     line = LineStringField(blank=True, null=True, srid=DEFAULT_SRID)
 
 
+class Mission(Model):
+    class Meta:
+        db_table = "missions"
+
+    asset = ForeignKey(Asset, related_name='missions', on_delete=CASCADE)
+
+    id = UUIDField(primary_key=True, default=uuid4, editable=False)
+    name = CharField(max_length=120)
+    description = TextField(blank=True, null=True)
+    note = TextField(blank=True, null=True)
+    created = DateTimeField(auto_now_add=True)
+    # Geometry (path, point)
+    point = PointField(blank=True, null=True, srid=DEFAULT_SRID)
+    # or
+    line = LineStringField(blank=True, null=True, srid=DEFAULT_SRID)
+
+
 class Frame(Model):
     class Meta:
         db_table = "frames"
 
-    asset = ForeignKey(Asset, related_name='frames', on_delete=CASCADE)
+    mission = ForeignKey(Mission, related_name='frames', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     index = IntegerField(blank=False, null=False)
@@ -104,7 +104,7 @@ class Telemetry(Model):
     class Meta:
         db_table = "telemetries"
 
-    asset = ForeignKey(Asset, related_name='telemetries', on_delete=CASCADE)
+    mission = ForeignKey(Asset, related_name='telemetries', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     time = IntegerField(blank=True, null=True)
@@ -137,7 +137,7 @@ class TelemetryData(Model):
     class Meta:
         db_table = "telemetry_data"
 
-    asset = ForeignKey(Asset, related_name='telemetry_files', on_delete=CASCADE)
+    mission = ForeignKey(Mission, related_name='telemetry_files', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     created = DateTimeField(auto_now_add=True)
@@ -147,9 +147,9 @@ class TelemetryData(Model):
 
 class AssetData(Model):
     class Meta:
-        db_table = "asset_data"
+        db_table = "mission_data"
 
-    asset = ForeignKey(Asset, related_name='asset_files', on_delete=CASCADE)
+    mission = ForeignKey(Mission, related_name='mission_files', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     created = DateTimeField(auto_now_add=True)
@@ -161,7 +161,7 @@ class VideoData(Model):
     class Meta:
         db_table = "video_data"
 
-    asset = ForeignKey(Asset, related_name='video_files', on_delete=CASCADE)
+    mission = ForeignKey(Mission, related_name='video_files', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     created = DateTimeField(auto_now_add=True)
