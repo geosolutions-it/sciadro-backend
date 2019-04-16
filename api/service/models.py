@@ -104,7 +104,7 @@ class Telemetry(Model):
     class Meta:
         db_table = "telemetries"
 
-    mission = ForeignKey(Asset, related_name='telemetries', on_delete=CASCADE)
+    mission = ForeignKey(Mission, related_name='telemetries', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     time = IntegerField(blank=True, null=True)
@@ -130,7 +130,7 @@ FILE_STATUS_CHOICES = (
 
 
 def upload_to(instance, file_name):
-    return f'{instance.asset.id}/{file_name}'
+    return f'{instance.mission.id}/{file_name}'
 
 
 class TelemetryData(Model):
