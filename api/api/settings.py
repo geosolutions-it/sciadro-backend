@@ -131,8 +131,11 @@ MEDIA_URL = 'data/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
+CELERY_BROKER_URL = 'amqp://guest:guest@rabbit-mq:5672/'
+
 if os.getenv('TEST', False):
     DATABASES['default']['HOST'] = 'test-db'
     DATABASES['default']['PORT'] = 5432
+    CELERY_BROKER_URL = 'amqp://guest:guest@test-rabbit-mq:5672/'
 
 DEFAULT_SRID = 4326
