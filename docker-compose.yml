@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  db:
+    image: kartoza/postgis:11.0-2.5
+  api:
+    build: ./api
+    entrypoint: /code/entrypoint.sh
+    volumes:
+      - ./api:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      WAIT_HOSTS: db:5432
