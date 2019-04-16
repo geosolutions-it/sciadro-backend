@@ -12,7 +12,7 @@ from django.db.models import IntegerField
 from django.contrib.gis.db.models import PolygonField
 from django.contrib.gis.db.models import LineStringField
 from django.db.models import FileField
-from api.api.settings import DEFAULT_SRID
+from api.settings import DEFAULT_SRID
 
 
 class Asset(Model):
@@ -145,7 +145,7 @@ class TelemetryData(Model):
     file = FileField(upload_to=upload_to)
 
 
-class AssetData(Model):
+class MissionData(Model):
     class Meta:
         db_table = "mission_data"
 
