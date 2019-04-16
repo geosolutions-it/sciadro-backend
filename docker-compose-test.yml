@@ -3,6 +3,8 @@ version: '3'
 services:
   test-db:
     image: kartoza/postgis:11.0-2.5
+  test-rabbit-mq:
+    image: rabbitmq:3.7
   test-api:
     build: ./api
     entrypoint: /code/entrypoint-test.sh
@@ -12,6 +14,7 @@ services:
       - "8000:8000"
     depends_on:
       - test-db
+      - test-rabbit-mq
     environment:
-      WAIT_HOSTS: test-db:5432
+      WAIT_HOSTS: test-db:5432, test-rabbit-mq:5672
       TEST: 1
