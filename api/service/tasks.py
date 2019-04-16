@@ -1,7 +1,7 @@
 from celery import shared_task
 from .models import TelemetryData
-from .models import AssetData
-from .models import Asset
+from .models import MissionData
+from .models import Mission
 from .models import Frame
 from .models import Object
 from .models import Telemetry
@@ -15,11 +15,11 @@ from django.contrib.gis.geos import Polygon
 def handle_telemetry_data_file(self, pk):
     telemetry_data = TelemetryData.objects.get(pk=pk)
     data = parse_telemetry_data(telemetry_data.file.path)
-    asset = Asset.objects.get(pk=telemetry_data.asset.id)
+    mission = Mission.objects.get(pk=telemetry_data.mission.id)
 
     for attributes in data.attributes:
         telemetry = Telemetry()
-        telemetry.asset = asset
+        telemetry.mission = mission
         telemetry.time = attributes.time
         telemetry.roll = attributes.roll
         telemetry.pitch = attributes.pitch
@@ -31,7 +31,7 @@ def handle_telemetry_data_file(self, pk):
 
     for position in data.positions:
         telemetry = Telemetry()
-        telemetry.asset = asset
+        telemetry.mission = mission
         telemetry.time = position.time
         telemetry.lat = position.lat
         telemetry.lon = position.lon
@@ -41,23 +41,14 @@ def handle_telemetry_data_file(self, pk):
 
 
 @shared_task(bind=True)
-def handle_asset_data_file(self, pk):
-    asset_data = AssetData.objects.get(pk=pk)
-    data = parse_asset_data(asset_data.file.path)
-    asset = Asset.objects.get(pk=asset_data.asset.id)
-    if data.type == 'powerline':
-        asset.type = asset.POWER_LINE
-    elif data.type == 'pipeline':
-        asset.type = asset.PIPELINE
-    elif data.type == 'electrictruss':
-        asset.type = asset.ELECTRIC_TRUSS
-    else:
-        raise ValueError(f'Unknown asset type: {data.type}')
-    asset.save()
+def handle_mission_data_file(self, pk):
+    mission_data = MissionData.objects.get(pk=pk)
+    data = parse_asset_data(mission_data.file.path)
+    mission = Mission.objects.get(pk=mission_data.mission.id)
 
     for frame_data in data.frames:
         frame = Frame()
-        frame.asset = asset
+        frame.mission = mission
         frame.location = Point(
             x=frame_data.position.longitude,
             y=frame_data.position.latitude
