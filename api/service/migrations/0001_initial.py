@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
             name='Mission',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=120)),
+                ('name', models.CharField(blank=True, max_length=120, null=True)),
                 ('description', models.TextField(blank=True, null=True)),
                 ('note', models.TextField(blank=True, null=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
