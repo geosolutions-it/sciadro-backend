@@ -49,7 +49,7 @@ class Mission(Model):
     asset = ForeignKey(Asset, related_name='missions', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
-    name = CharField(max_length=120)
+    name = CharField(max_length=120, blank=True, null=True)
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
     created = DateTimeField(auto_now_add=True)
