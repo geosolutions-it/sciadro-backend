@@ -9,15 +9,14 @@ from django.db.models import UUIDField
 from uuid import uuid4
 from django.contrib.gis.db.models import PointField
 from django.db.models import IntegerField
-from django.contrib.gis.db.models import PolygonField
-from django.contrib.gis.db.models import LineStringField
 from django.db.models import FileField
 from api.settings import DEFAULT_SRID
+from django.contrib.gis.db.models import GeometryField
 
 
 class Asset(Model):
     class Meta:
-        db_table = "assets"
+        db_table = "asset"
 
     PIPELINE = 'PIP'
     POWER_LINE = 'POW'
@@ -30,54 +29,44 @@ class Asset(Model):
     )
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
-    type = CharField(max_length=3, choices=TYPE_CHOICES, blank=False, null=True)
-    name = CharField(max_length=120, blank=True, null=True)
+    type = CharField(max_length=3, choices=TYPE_CHOICES, blank=False, null=False)
+    name = CharField(max_length=120, blank=False, null=False)
     created = DateTimeField(auto_now_add=True)
     modified = DateTimeField(auto_now=True)
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
-    # Geometry
-    point = PointField(blank=True, null=True, srid=DEFAULT_SRID)
-    # or
-    line = LineStringField(blank=True, null=True, srid=DEFAULT_SRID)
+    geometry = GeometryField(blank=True, null=True, srid=DEFAULT_SRID)
 
 
 class Mission(Model):
     class Meta:
-        db_table = "missions"
+        db_table = "mission"
 
     asset = ForeignKey(Asset, related_name='missions', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
-    name = CharField(max_length=120)
+    name = CharField(max_length=120, blank=False, null=False)
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
     created = DateTimeField(auto_now_add=True)
-    # Geometry (path, point)
-    point = PointField(blank=True, null=True, srid=DEFAULT_SRID)
-    # or
-    line = LineStringField(blank=True, null=True, srid=DEFAULT_SRID)
+    geometry = GeometryField(blank=True, null=True, srid=DEFAULT_SRID)
 
 
 class Frame(Model):
     class Meta:
-        db_table = "frames"
+        db_table = "frame"
 
     mission = ForeignKey(Mission, related_name='frames', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     index = IntegerField(blank=False, null=False)
-    # Coordinates
+    # longitude, latitude
     location = PointField(blank=False, null=False, srid=DEFAULT_SRID)
-    # Geometry
-    point = PointField(blank=True, null=True, dim=3, srid=DEFAULT_SRID)
-    # or
-    line = LineStringField(blank=True, null=True, dim=3, srid=DEFAULT_SRID)
 
 
 class Object(Model):
     class Meta:
-        db_table = "objects"
+        db_table = "object"
 
     INSULATOR = 'INS'
 
@@ -97,14 +86,17 @@ class Object(Model):
     type = CharField(max_length=3, choices=TYPE_CHOICES)
     status = CharField(max_length=3, choices=STATUS_CHOICES)
     confidence = IntegerField(blank=False, null=False)
-    box = PolygonField(blank=False, null=False, srid=DEFAULT_SRID)
+    x_min = IntegerField(blank=False, null=False)
+    x_max = IntegerField(blank=False, null=False)
+    y_min = IntegerField(blank=False, null=False)
+    y_max = IntegerField(blank=False, null=False)
 
 
 class Telemetry(Model):
     class Meta:
-        db_table = "telemetries"
+        db_table = "telemetry"
 
-    mission = ForeignKey(Asset, related_name='telemetries', on_delete=CASCADE)
+    mission = ForeignKey(Mission, related_name='telemetries', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     time = IntegerField(blank=True, null=True)
@@ -120,34 +112,21 @@ class Telemetry(Model):
     location = PointField(blank=True, null=True, srid=DEFAULT_SRID)
 
 
-UPLOADED = 'UPL'
-PROCESSED = 'PRO'
-
-FILE_STATUS_CHOICES = (
-    (UPLOADED, 'Uploaded'),
-    (PROCESSED, 'Processed')
-)
-
-
 def upload_to(instance, file_name):
     return f'{instance.asset.id}/{file_name}'
 
 
-class TelemetryData(Model):
-    class Meta:
-        db_table = "telemetry_data"
-
-    mission = ForeignKey(Mission, related_name='telemetry_files', on_delete=CASCADE)
-
-    id = UUIDField(primary_key=True, default=uuid4, editable=False)
-    created = DateTimeField(auto_now_add=True)
-    status = CharField(max_length=3, choices=FILE_STATUS_CHOICES, default=UPLOADED)
-    file = FileField(upload_to=upload_to)
-
-
 class MissionData(Model):
     class Meta:
-        db_table = "mission_data"
+        db_table = "mission_file"
+
+    UPLOADED = 'UPL'
+    PROCESSED = 'PRO'
+
+    FILE_STATUS_CHOICES = (
+        (UPLOADED, 'Uploaded'),
+        (PROCESSED, 'Processed')
+    )
 
     mission = ForeignKey(Mission, related_name='mission_files', on_delete=CASCADE)
 
@@ -159,11 +138,9 @@ class MissionData(Model):
 
 class VideoData(Model):
     class Meta:
-        db_table = "video_data"
+        db_table = "video"
 
-    mission = ForeignKey(Mission, related_name='video_files', on_delete=CASCADE)
+    mission = ForeignKey(Mission, related_name='video', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
-    created = DateTimeField(auto_now_add=True)
-    status = CharField(max_length=3, choices=FILE_STATUS_CHOICES, default=UPLOADED)
-    file = FileField(upload_to=upload_to)
+    file = FileField()
