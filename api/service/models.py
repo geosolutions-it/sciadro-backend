@@ -15,9 +15,15 @@ from django.contrib.gis.db.models import GeometryField
 
 
 class Asset(Model):
+    """Top level class for entire class hierarchy"""
     class Meta:
         db_table = "asset"
 
+    """Asset type can take following values:
+            - pipeline
+            - power line
+            - electric truss
+    """
     PIPELINE = 'PIP'
     POWER_LINE = 'POW'
     ELECTRIC_TRUSS = 'ELE'
@@ -39,6 +45,7 @@ class Asset(Model):
 
 
 class Mission(Model):
+    """All data is associated with Mission class, multiply missions can be attached to a single asset"""
     class Meta:
         db_table = "mission"
 
@@ -53,6 +60,7 @@ class Mission(Model):
 
 
 class Frame(Model):
+    """Video frame object"""
     class Meta:
         db_table = "frame"
 
@@ -65,9 +73,13 @@ class Frame(Model):
 
 
 class Object(Model):
+    """Some object of interest inside the frame"""
     class Meta:
         db_table = "object"
 
+    """Object type, up to now there's only one option:
+            - insulator
+    """
     INSULATOR = 'INS'
 
     TYPE_CHOICES = (
@@ -93,6 +105,7 @@ class Object(Model):
 
 
 class Telemetry(Model):
+    """Telemetry data received from drone"""
     class Meta:
         db_table = "telemetry"
 
@@ -112,11 +125,13 @@ class Telemetry(Model):
     location = PointField(blank=True, null=True, srid=DEFAULT_SRID)
 
 
+# All data is uploaded into mission specific folder
 def upload_to(instance, file_name):
-    return f'{instance.asset.id}/{file_name}'
+    return f'{instance.mission.id}/{file_name}'
 
 
 class MissionData(Model):
+    """An archive with all data received from drone including telemetry data and video"""
     class Meta:
         db_table = "mission_file"
 
@@ -137,6 +152,7 @@ class MissionData(Model):
 
 
 class VideoData(Model):
+    """Video file received from drone"""
     class Meta:
         db_table = "video"
 

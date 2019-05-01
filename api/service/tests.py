@@ -11,6 +11,7 @@ from service.models import VideoData
 
 class BasicModelTest(TestCase):
     def setUp(self) -> None:
+        """Remove all records from DB to get reliable test results"""
         VideoData.objects.all().delete()
         MissionData.objects.all().delete()
         Telemetry.objects.all().delete()
@@ -20,6 +21,7 @@ class BasicModelTest(TestCase):
         Asset.objects.all().delete()
 
     def test_basic_model_creation(self):
+        """Create a basic DB record set"""
         asset = Asset()
         asset.save()
         mission = Mission(asset=asset)
