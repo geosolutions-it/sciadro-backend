@@ -25,10 +25,10 @@ class Migration(migrations.Migration):
                 ('modified', models.DateTimeField(auto_now=True)),
                 ('description', models.TextField(blank=True, null=True)),
                 ('note', models.TextField(blank=True, null=True)),
-                ('geometry', django.contrib.gis.db.models.fields.GeometryField(blank=True, null=True, srid=4326)),
+                ('geometry', django.contrib.gis.db.models.fields.GeometryField(blank=True, null=True, srid=4326))
             ],
             options={
-                'db_table': 'asset',
+                'db_table': 'asset'
             },
         ),
         migrations.CreateModel(
@@ -36,25 +36,25 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('index', models.IntegerField()),
-                ('location', django.contrib.gis.db.models.fields.PointField(srid=4326)),
+                ('location', django.contrib.gis.db.models.fields.PointField(srid=4326))
             ],
             options={
-                'db_table': 'frame',
+                'db_table': 'frame'
             },
         ),
         migrations.CreateModel(
             name='Mission',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=120)),
+                ('name', models.CharField(blank=True, max_length=120, null=True)),
                 ('description', models.TextField(blank=True, null=True)),
                 ('note', models.TextField(blank=True, null=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('geometry', django.contrib.gis.db.models.fields.GeometryField(blank=True, null=True, srid=4326)),
-                ('asset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='missions', to='service.Asset')),
+                ('asset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='missions', to='service.Asset'))
             ],
             options={
-                'db_table': 'mission',
+                'db_table': 'mission'
             },
         ),
         migrations.CreateModel(
@@ -62,10 +62,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('file', models.FileField(upload_to='')),
-                ('mission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='video', to='service.Mission')),
+                ('mission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='video', to='service.Mission'))
             ],
             options={
-                'db_table': 'video',
+                'db_table': 'video'
             },
         ),
         migrations.CreateModel(
@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
                 ('mission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='telemetries', to='service.Mission')),
             ],
             options={
-                'db_table': 'telemetry',
+                'db_table': 'telemetry'
             },
         ),
         migrations.CreateModel(
@@ -99,10 +99,10 @@ class Migration(migrations.Migration):
                 ('x_max', models.IntegerField()),
                 ('y_min', models.IntegerField()),
                 ('y_max', models.IntegerField()),
-                ('frame', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='_objects', to='service.Frame')),
+                ('frame', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='_objects', to='service.Frame'))
             ],
             options={
-                'db_table': 'object',
+                'db_table': 'object'
             },
         ),
         migrations.CreateModel(
@@ -115,7 +115,7 @@ class Migration(migrations.Migration):
                 ('mission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='mission_files', to='service.Mission')),
             ],
             options={
-                'db_table': 'mission_file',
+                'db_table': 'mission_file'
             },
         ),
         migrations.AddField(
