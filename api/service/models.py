@@ -99,7 +99,7 @@ class Object(Model):
     type = CharField(max_length=3, choices=TYPE_CHOICES)
     status = CharField(max_length=3, choices=STATUS_CHOICES)
     confidence = IntegerField(blank=False, null=False)
-    
+
     x_min = IntegerField(blank=False, null=False)
     x_max = IntegerField(blank=False, null=False)
     y_min = IntegerField(blank=False, null=False)
