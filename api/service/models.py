@@ -24,6 +24,7 @@ class Asset(Model):
             - power line
             - electric truss
     """
+    
     PIPELINE = 'PIP'
     POWER_LINE = 'POW'
     ELECTRIC_TRUSS = 'ELE'
@@ -42,7 +43,6 @@ class Asset(Model):
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
     geometry = GeometryField(blank=True, null=True, srid=DEFAULT_SRID)
-
 
 class Mission(Model):
     """All data is associated with Mission class, multiply missions can be attached to a single asset"""
@@ -68,9 +68,9 @@ class Frame(Model):
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     index = IntegerField(blank=False, null=False)
+    
     # longitude, latitude
     location = PointField(blank=False, null=False, srid=DEFAULT_SRID)
-
 
 class Object(Model):
     """Some object of interest inside the frame"""
@@ -80,6 +80,7 @@ class Object(Model):
     """Object type, up to now there's only one option:
             - insulator
     """
+    
     INSULATOR = 'INS'
 
     TYPE_CHOICES = (
@@ -98,6 +99,7 @@ class Object(Model):
     type = CharField(max_length=3, choices=TYPE_CHOICES)
     status = CharField(max_length=3, choices=STATUS_CHOICES)
     confidence = IntegerField(blank=False, null=False)
+    
     x_min = IntegerField(blank=False, null=False)
     x_max = IntegerField(blank=False, null=False)
     y_min = IntegerField(blank=False, null=False)
@@ -128,7 +130,6 @@ class Telemetry(Model):
 # All data is uploaded into mission specific folder
 def upload_to(instance, file_name):
     return f'{instance.mission.id}/{file_name}'
-
 
 class MissionData(Model):
     """An archive with all data received from drone including telemetry data and video"""

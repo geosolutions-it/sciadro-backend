@@ -24,4 +24,3 @@ To stop application open terminal and run in the root project directory:
 To run tests open terminal window and run in the root project directory:
 
 ```./test.sh```
-
