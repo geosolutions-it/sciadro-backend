@@ -1,5 +1,8 @@
 # sciadro-backend
 
+## DB Schema
+![DB schema](db-schema.png)
+
 ## Local run
 
 Install:

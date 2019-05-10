@@ -19,17 +19,16 @@ class Migration(migrations.Migration):
             name='Asset',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('type', models.CharField(choices=[('PIP', 'Pipeline'), ('POW', 'Power line'), ('ELE', 'Electric truss')], max_length=3, null=True)),
-                ('name', models.CharField(blank=True, max_length=120, null=True)),
+                ('type', models.CharField(choices=[('PIP', 'Pipeline'), ('POW', 'Power line'), ('ELE', 'Electric truss')], max_length=3)),
+                ('name', models.CharField(max_length=120)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('modified', models.DateTimeField(auto_now=True)),
                 ('description', models.TextField(blank=True, null=True)),
                 ('note', models.TextField(blank=True, null=True)),
-                ('point', django.contrib.gis.db.models.fields.PointField(blank=True, null=True, srid=4326)),
-                ('line', django.contrib.gis.db.models.fields.LineStringField(blank=True, null=True, srid=4326)),
+                ('geometry', django.contrib.gis.db.models.fields.GeometryField(blank=True, null=True, srid=4326))
             ],
             options={
-                'db_table': 'assets',
+                'db_table': 'asset'
             },
         ),
         migrations.CreateModel(
@@ -37,12 +36,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('index', models.IntegerField()),
-                ('location', django.contrib.gis.db.models.fields.PointField(srid=4326)),
-                ('point', django.contrib.gis.db.models.fields.PointField(blank=True, dim=3, null=True, srid=4326)),
-                ('line', django.contrib.gis.db.models.fields.LineStringField(blank=True, dim=3, null=True, srid=4326)),
+                ('location', django.contrib.gis.db.models.fields.PointField(srid=4326))
             ],
             options={
-                'db_table': 'frames',
+                'db_table': 'frame'
             },
         ),
         migrations.CreateModel(
@@ -53,38 +50,22 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(blank=True, null=True)),
                 ('note', models.TextField(blank=True, null=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
-                ('point', django.contrib.gis.db.models.fields.PointField(blank=True, null=True, srid=4326)),
-                ('line', django.contrib.gis.db.models.fields.LineStringField(blank=True, null=True, srid=4326)),
-                ('asset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='missions', to='service.Asset')),
+                ('geometry', django.contrib.gis.db.models.fields.GeometryField(blank=True, null=True, srid=4326)),
+                ('asset', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='missions', to='service.Asset'))
             ],
             options={
-                'db_table': 'missions',
+                'db_table': 'mission'
             },
         ),
         migrations.CreateModel(
             name='VideoData',
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('status', models.CharField(choices=[('UPL', 'Uploaded'), ('PRO', 'Processed')], default='UPL', max_length=3)),
-                ('file', models.FileField(upload_to=service.models.upload_to)),
-                ('mission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='video_files', to='service.Mission')),
+                ('file', models.FileField(upload_to='')),
+                ('mission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='video', to='service.Mission'))
             ],
             options={
-                'db_table': 'video_data',
-            },
-        ),
-        migrations.CreateModel(
-            name='TelemetryData',
-            fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('status', models.CharField(choices=[('UPL', 'Uploaded'), ('PRO', 'Processed')], default='UPL', max_length=3)),
-                ('file', models.FileField(upload_to=service.models.upload_to)),
-                ('mission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='telemetry_files', to='service.Mission')),
-            ],
-            options={
-                'db_table': 'telemetry_data',
+                'db_table': 'video'
             },
         ),
         migrations.CreateModel(
@@ -104,7 +85,7 @@ class Migration(migrations.Migration):
                 ('mission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='telemetries', to='service.Mission')),
             ],
             options={
-                'db_table': 'telemetries',
+                'db_table': 'telemetry'
             },
         ),
         migrations.CreateModel(
@@ -114,11 +95,14 @@ class Migration(migrations.Migration):
                 ('type', models.CharField(choices=[('INS', 'Insulator')], max_length=3)),
                 ('status', models.CharField(choices=[('UNK', 'Unknown')], max_length=3)),
                 ('confidence', models.IntegerField()),
-                ('box', django.contrib.gis.db.models.fields.PolygonField(srid=4326)),
-                ('frame', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='_objects', to='service.Frame')),
+                ('x_min', models.IntegerField()),
+                ('x_max', models.IntegerField()),
+                ('y_min', models.IntegerField()),
+                ('y_max', models.IntegerField()),
+                ('frame', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='_objects', to='service.Frame'))
             ],
             options={
-                'db_table': 'objects',
+                'db_table': 'object'
             },
         ),
         migrations.CreateModel(
@@ -131,7 +115,7 @@ class Migration(migrations.Migration):
                 ('mission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='mission_files', to='service.Mission')),
             ],
             options={
-                'db_table': 'mission_data',
+                'db_table': 'mission_file'
             },
         ),
         migrations.AddField(
