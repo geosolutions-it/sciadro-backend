@@ -1,43 +1,41 @@
 from celery import shared_task
-from .models import TelemetryData
 from .models import MissionData
 from .models import Mission
 from .models import Frame
 from .models import Object
-from .models import Telemetry
 from .utils.asset import parse_asset_data
 from .utils.telemetry import parse_telemetry_data
 from django.contrib.gis.geos import Point
 from django.contrib.gis.geos import Polygon
 
 
-@shared_task(bind=True)
-def handle_telemetry_data_file(self, pk):
-    telemetry_data = TelemetryData.objects.get(pk=pk)
-    data = parse_telemetry_data(telemetry_data.file.path)
-    mission = Mission.objects.get(pk=telemetry_data.mission.id)
-
-    for attributes in data.attributes:
-        telemetry = Telemetry()
-        telemetry.mission = mission
-        telemetry.time = attributes.time
-        telemetry.roll = attributes.roll
-        telemetry.pitch = attributes.pitch
-        telemetry.yaw = attributes.yaw
-        telemetry.rollspeed = attributes.rollspeed
-        telemetry.pitchspeed = attributes.pitchspeed
-        telemetry.yawspeed = attributes.yawspeed
-        telemetry.save()
-
-    for position in data.positions:
-        telemetry = Telemetry()
-        telemetry.mission = mission
-        telemetry.time = position.time
-        telemetry.lat = position.lat
-        telemetry.lon = position.lon
-        telemetry.alt = position.alt
-        telemetry.relative_alt = position.relative_alt
-        telemetry.save()
+# @shared_task(bind=True)
+# def handle_telemetry_data_file(self, pk):
+#     telemetry_data = TelemetryData.objects.get(pk=pk)
+#     data = parse_telemetry_data(telemetry_data.file.path)
+#     mission = Mission.objects.get(pk=telemetry_data.mission.id)
+#
+#     for attributes in data.attributes:
+#         telemetry = Telemetry()
+#         telemetry.mission = mission
+#         telemetry.time = attributes.time
+#         telemetry.roll = attributes.roll
+#         telemetry.pitch = attributes.pitch
+#         telemetry.yaw = attributes.yaw
+#         telemetry.rollspeed = attributes.rollspeed
+#         telemetry.pitchspeed = attributes.pitchspeed
+#         telemetry.yawspeed = attributes.yawspeed
+#         telemetry.save()
+#
+#     for position in data.positions:
+#         telemetry = Telemetry()
+#         telemetry.mission = mission
+#         telemetry.time = position.time
+#         telemetry.lat = position.lat
+#         telemetry.lon = position.lon
+#         telemetry.alt = position.alt
+#         telemetry.relative_alt = position.relative_alt
+#         telemetry.save()
 
 
 @shared_task(bind=True)

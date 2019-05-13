@@ -4,7 +4,7 @@ from .models import Mission
 from .models import Frame
 from .models import Object
 from .models import Telemetry
-from .models import TelemetryData
+# from .models import TelemetryData
 from .models import MissionData
 from .models import VideoData
 
@@ -12,7 +12,7 @@ from .models import VideoData
 class AssetSerializer(ModelSerializer):
     class Meta:
         model = Asset
-        fields = ('id', 'type', 'name', 'created', 'modified', 'description', 'note', 'point', 'line',
+        fields = ('id', 'type', 'name', 'created', 'modified', 'description', 'note', 'geometry',
                   'missions')
         read_only_fields = ('missions',)
 
@@ -20,14 +20,14 @@ class AssetSerializer(ModelSerializer):
 class MissionSerializer(ModelSerializer):
     class Meta:
         model = Mission
-        fields = ('id', 'created', 'name', 'description', 'note', 'point', 'line', 'asset', 'frames', 'telemetries')
+        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'frames', 'telemetries')
         read_only_fields = ('asset', 'frames', 'telemetries')
 
 
 class FrameSerializer(ModelSerializer):
     class Meta:
         model = Frame
-        fields = ('id', 'point', 'line', 'mission', 'index', 'location', '_objects')
+        fields = ('id', 'line', 'mission', 'index', 'location', '_objects')
         read_only_fields = ('mission', '_objects')
 
 
@@ -46,11 +46,11 @@ class TelemetrySerializer(ModelSerializer):
         read_only_fields = ('mission',)
 
 
-class TelemetryDataSerializer(ModelSerializer):
-    class Meta:
-        model = TelemetryData
-        fields = ('file', 'status', 'mission')
-        read_only_fields = ('mission',)
+# class TelemetryDataSerializer(ModelSerializer):
+#     class Meta:
+#         model = TelemetryData
+#         fields = ('file', 'status', 'mission')
+#         read_only_fields = ('mission',)
 
 
 class MissionDataSerializer(ModelSerializer):

@@ -10,7 +10,7 @@ from uuid import uuid4
 from django.contrib.gis.db.models import PointField
 from django.db.models import IntegerField
 from django.db.models import FileField
-from api.settings import DEFAULT_SRID
+from django.conf import settings
 from django.contrib.gis.db.models import GeometryField
 
 
@@ -42,7 +42,7 @@ class Asset(Model):
     modified = DateTimeField(auto_now=True)
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
-    geometry = GeometryField(blank=True, null=True, srid=DEFAULT_SRID)
+    geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
 
 class Mission(Model):
     """All data is associated with Mission class, multiply missions can be attached to a single asset"""
@@ -56,7 +56,7 @@ class Mission(Model):
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
     created = DateTimeField(auto_now_add=True)
-    geometry = GeometryField(blank=True, null=True, srid=DEFAULT_SRID)
+    geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
 
 
 class Frame(Model):
@@ -70,7 +70,7 @@ class Frame(Model):
     index = IntegerField(blank=False, null=False)
     
     # longitude, latitude
-    location = PointField(blank=False, null=False, srid=DEFAULT_SRID)
+    location = PointField(blank=False, null=False, srid=settings.DEFAULT_SRID)
 
 class Object(Model):
     """Some object of interest inside the frame"""
@@ -124,7 +124,7 @@ class Telemetry(Model):
     altitude = FloatField(blank=True, null=True)
     relative_altitude = FloatField(blank=True, null=True)
     # longitude, latitude
-    location = PointField(blank=True, null=True, srid=DEFAULT_SRID)
+    location = PointField(blank=True, null=True, srid=settings.DEFAULT_SRID)
 
 
 # All data is uploaded into mission specific folder
