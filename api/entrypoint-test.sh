@@ -6,7 +6,7 @@ celery -A api worker -l info &
 coverage run --source='.' manage.py test
 
 if [ $? -ne 0 ]; then
-    $script_result=$?
+    script_result=1
 fi
 
 coverage html
