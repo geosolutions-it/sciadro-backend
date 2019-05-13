@@ -11,3 +11,4 @@ RUN chmod +x /wait
 
 RUN chmod +x /code/entrypoint.sh
 RUN chmod +x /code/entrypoint-test.sh
+RUN chmod +x /code/entrypoint-staging.sh
