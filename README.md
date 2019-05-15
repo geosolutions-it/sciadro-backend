@@ -24,3 +24,10 @@ To stop application open terminal and run in the root project directory:
 To run tests open terminal window and run in the root project directory:
 
 ```./test.sh```
+
+
+## Development environment
+
+To run docker setup with local user docker compose seek for CURRENT_UID environmental variable
+Remember to set it fir example in following way:
+CURRENT_UID=$(id -u):$(id -g)
