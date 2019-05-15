@@ -5,8 +5,8 @@ from .models import Frame
 from .models import Object
 from .models import Telemetry
 # from .models import TelemetryData
-from .models import MissionData
-from .models import VideoData
+# from .models import MissionData
+# from .models import VideoData
 
 
 class AssetSerializer(ModelSerializer):
@@ -20,7 +20,7 @@ class AssetSerializer(ModelSerializer):
 class MissionSerializer(ModelSerializer):
     class Meta:
         model = Mission
-        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'frames', 'telemetries')
+        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'frames', 'telemetries', 'video_file')
         read_only_fields = ('asset', 'frames', 'telemetries')
 
 
@@ -53,15 +53,15 @@ class TelemetrySerializer(ModelSerializer):
 #         read_only_fields = ('mission',)
 
 
-class MissionDataSerializer(ModelSerializer):
-    class Meta:
-        model = MissionData
-        fields = ('file', 'status')
-        read_only_fields = ('mission',)
+# class MissionDataSerializer(ModelSerializer):
+#     class Meta:
+#         model = MissionData
+#         fields = ('file', 'status')
+#         read_only_fields = ('mission',)
 
 
-class VideoDataSerializer(ModelSerializer):
-    class Meta:
-        model = VideoData
-        fields = ('file', 'status')
-        read_only_fields = ('mission',)
+# class VideoDataSerializer(ModelSerializer):
+#     class Meta:
+#         model = VideoData
+#         fields = ('file', 'status')
+#         read_only_fields = ('mission',)

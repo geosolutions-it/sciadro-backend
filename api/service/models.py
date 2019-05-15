@@ -12,10 +12,23 @@ from django.db.models import IntegerField
 from django.db.models import FileField
 from django.conf import settings
 from django.contrib.gis.db.models import GeometryField
+from django.utils.translation import gettext as _
+from datetime import datetime
+
+
+def upload_to(instance, file_name):
+    return f'{instance.mission.id}/{file_name}'
+
+def default_asset_name():
+    return f'{_("Asset")}_{datetime.utcnow()}'
+
+def default_mission_name():
+    return f'{_("Mission")}_{datetime.utcnow()}'
 
 
 class Asset(Model):
     """Top level class for entire class hierarchy"""
+
     class Meta:
         db_table = "asset"
 
@@ -24,7 +37,7 @@ class Asset(Model):
             - power line
             - electric truss
     """
-    
+
     PIPELINE = 'PIP'
     POWER_LINE = 'POW'
     ELECTRIC_TRUSS = 'ELE'
@@ -37,30 +50,34 @@ class Asset(Model):
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     type = CharField(max_length=3, choices=TYPE_CHOICES, blank=False, null=False)
-    name = CharField(max_length=120, blank=False, null=False)
+    name = CharField(max_length=120, blank=False, null=False, default=default_asset_name)
     created = DateTimeField(auto_now_add=True)
     modified = DateTimeField(auto_now=True)
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
     geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
 
+
 class Mission(Model):
     """All data is associated with Mission class, multiply missions can be attached to a single asset"""
+
     class Meta:
         db_table = "mission"
 
     asset = ForeignKey(Asset, related_name='missions', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
-    name = CharField(max_length=120, blank=False, null=False)
+    name = CharField(max_length=120, blank=False, null=False, default=default_mission_name)
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
     created = DateTimeField(auto_now_add=True)
     geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
+    video_file = FileField(upload_to=upload_to)
 
 
 class Frame(Model):
     """Video frame object"""
+
     class Meta:
         db_table = "frame"
 
@@ -68,19 +85,21 @@ class Frame(Model):
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     index = IntegerField(blank=False, null=False)
-    
+
     # longitude, latitude
     location = PointField(blank=False, null=False, srid=settings.DEFAULT_SRID)
 
+
 class Object(Model):
     """Some object of interest inside the frame"""
+
     class Meta:
         db_table = "object"
 
     """Object type, up to now there's only one option:
             - insulator
     """
-    
+
     INSULATOR = 'INS'
 
     TYPE_CHOICES = (
@@ -108,6 +127,7 @@ class Object(Model):
 
 class Telemetry(Model):
     """Telemetry data received from drone"""
+
     class Meta:
         db_table = "telemetry"
 
@@ -131,33 +151,24 @@ class Telemetry(Model):
 def upload_to(instance, file_name):
     return f'{instance.mission.id}/{file_name}'
 
-class MissionData(Model):
-    """An archive with all data received from drone including telemetry data and video"""
-    class Meta:
-        db_table = "mission_file"
 
-    UPLOADED = 'UPL'
-    PROCESSED = 'PRO'
+# class MissionData(Model):
+#     """An archive with all data received from drone including telemetry data and video"""
+#     class Meta:
+#         db_table = "mission_file"
+#
+#     UPLOADED = 'UPL'
+#     PROCESSED = 'PRO'
+#
+#     FILE_STATUS_CHOICES = (
+#         (UPLOADED, 'Uploaded'),
+#         (PROCESSED, 'Processed')
+#     )
+#
+#     mission = ForeignKey(Mission, related_name='mission_files', on_delete=CASCADE)
+#
+#     id = UUIDField(primary_key=True, default=uuid4, editable=False)
+#     created = DateTimeField(auto_now_add=True)
+#     status = CharField(max_length=3, choices=FILE_STATUS_CHOICES, default=UPLOADED)
+#     file = FileField(upload_to=upload_to)
 
-    FILE_STATUS_CHOICES = (
-        (UPLOADED, 'Uploaded'),
-        (PROCESSED, 'Processed')
-    )
-
-    mission = ForeignKey(Mission, related_name='mission_files', on_delete=CASCADE)
-
-    id = UUIDField(primary_key=True, default=uuid4, editable=False)
-    created = DateTimeField(auto_now_add=True)
-    status = CharField(max_length=3, choices=FILE_STATUS_CHOICES, default=UPLOADED)
-    file = FileField(upload_to=upload_to)
-
-
-class VideoData(Model):
-    """Video file received from drone"""
-    class Meta:
-        db_table = "video"
-
-    mission = ForeignKey(Mission, related_name='video', on_delete=CASCADE)
-
-    id = UUIDField(primary_key=True, default=uuid4, editable=False)
-    file = FileField()

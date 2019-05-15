@@ -1,5 +1,5 @@
 from celery import shared_task
-from .models import MissionData
+# from .models import MissionData
 from .models import Mission
 from .models import Frame
 from .models import Object
@@ -40,35 +40,36 @@ from django.contrib.gis.geos import Polygon
 
 @shared_task(bind=True)
 def handle_mission_data_file(self, pk):
-    mission_data = MissionData.objects.get(pk=pk)
-    data = parse_asset_data(mission_data.file.path)
-    mission = Mission.objects.get(pk=mission_data.mission.id)
-
-    for frame_data in data.frames:
-        frame = Frame()
-        frame.mission = mission
-        frame.location = Point(
-            x=frame_data.position.longitude,
-            y=frame_data.position.latitude
-        )
-        frame.index = frame_data.id.index
-        frame.save()
-        for object_data in frame_data.objects:
-            object_ = Object()
-            object_.frame = frame
-            if object_data.type == 'insulator':
-                object_.type = object_.INSULATOR
-            else:
-                raise ValueError(f'Unknown object type: {object_data.type}')
-            object_.confidence = object_data.status.confidence
-            object_.box = Polygon((
-                (object_data.box.x_min, object_data.box.y_min),
-                (object_data.box.x_min, object_data.box.y_max),
-                (object_data.box.x_max, object_data.box.y_max),
-                (object_data.box.x_max, object_data.box.y_min),
-                (object_data.box.x_min, object_data.box.y_min)
-            ))
-            object_.save()
+    pass
+    # mission_data = MissionData.objects.get(pk=pk)
+    # data = parse_asset_data(mission_data.file.path)
+    # mission = Mission.objects.get(pk=mission_data.mission.id)
+    #
+    # for frame_data in data.frames:
+    #     frame = Frame()
+    #     frame.mission = mission
+    #     frame.location = Point(
+    #         x=frame_data.position.longitude,
+    #         y=frame_data.position.latitude
+    #     )
+    #     frame.index = frame_data.id.index
+    #     frame.save()
+    #     for object_data in frame_data.objects:
+    #         object_ = Object()
+    #         object_.frame = frame
+    #         if object_data.type == 'insulator':
+    #             object_.type = object_.INSULATOR
+    #         else:
+    #             raise ValueError(f'Unknown object type: {object_data.type}')
+    #         object_.confidence = object_data.status.confidence
+    #         object_.box = Polygon((
+    #             (object_data.box.x_min, object_data.box.y_min),
+    #             (object_data.box.x_min, object_data.box.y_max),
+    #             (object_data.box.x_max, object_data.box.y_max),
+    #             (object_data.box.x_max, object_data.box.y_min),
+    #             (object_data.box.x_min, object_data.box.y_min)
+    #         ))
+    #         object_.save()
 
 
 @shared_task(bind=True)
