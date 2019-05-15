@@ -10,6 +10,7 @@ services:
   api:
     build: ./api
     entrypoint: /code/entrypoint-staging.sh
+    user: ${CURRENT_UID}
     volumes:
       - ./api:/code
     ports:
