@@ -9,7 +9,7 @@ services:
     image: rabbitmq:3.7
   api:
     build: ./api
-    entrypoint: /code/entrypoint.sh
+    command: ['bash', '/code/entrypoint.sh']
     user: ${CURRENT_UID}
     volumes:
       - ./api:/code
