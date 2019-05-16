@@ -1,5 +1,8 @@
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+
+from service.utils.storage_handler import SystemFileStorage
+from service.utils.telemetry import parse_telemetry_data
 from .models import Asset
 from .serializers import AssetSerializer
 from .models import Mission
@@ -38,9 +41,6 @@ class AssetViewSet(ModelViewSet):
 class MissionViewSet(ModelViewSet):
     queryset = Mission.objects.all()
     serializer_class = MissionSerializer
-    telem_file_extension = 'telem'
-    video_extension = 'avi'
-    frame_extension = 'xml'
 
     def list(self, request, *args, **kwargs):
         return Response(self.serializer_class(self.queryset, many=True).data)
@@ -50,9 +50,20 @@ class MissionViewSet(ModelViewSet):
         file = self.request.FILES.get('video_file')
         file_name = file.name
         temporary_file_location = os.path.join(settings.MEDIA_ROOT, self.kwargs.get('asset_uuid'), file_name)
-        self.__handle_uploaded_file(file, temporary_file_location)
-        self.__unzip_file(temporary_file_location)
-        x = 10
+        storage_manager = SystemFileStorage(file_name, temporary_file_location)
+        storage_manager.save_temporary_file(file)
+        storage_manager.unzip_file()
+        m = Mission()
+        m.asset_id = self.kwargs.get('asset_uuid')
+        video_file = storage_manager.get_video_file()
+        m.video_file.save(video_file.name.split('/')[-1], video_file)
+        with storage_manager.get_telem_file() as telem:
+            telemetry = parse_telemetry_data(telem)
+            pass
+
+        with storage_manager.get_xml_file() as xml:
+            pass
+        storage_manager.delete_temporary_files()
 
     def __create_target_dir(self, file_path):
         if not os.path.exists(os.path.dirname(file_path)):

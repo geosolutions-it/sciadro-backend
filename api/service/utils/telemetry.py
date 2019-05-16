@@ -74,6 +74,9 @@ def _parse_telemetry_data(file: BinaryIO, file_name: str = None) -> Telemetry:
     return telemetry
 
 
-def parse_telemetry_data(file_name: str) -> Telemetry:
-    with open(file_name, "rb") as file:
-        return _parse_telemetry_data(file, file_name)
+def parse_telemetry_data(file):
+    return _parse_telemetry_data(file, 'telemetry_file')
+
+# def parse_telemetry_data(file_name: str) -> Telemetry:
+    # with open(file_name, "rb") as file:
+    #     return _parse_telemetry_data(file, file_name)

@@ -17,7 +17,7 @@ from datetime import datetime
 
 
 def upload_to(instance, file_name):
-    return f'{instance.mission.id}/{file_name}'
+    return f'{instance.id}/{file_name}'
 
 def default_asset_name():
     return f'{_("Asset")}_{datetime.utcnow()}'
