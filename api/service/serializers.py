@@ -4,7 +4,7 @@ from service.utils.telemetry import TelemetryPosition
 from .models import Asset
 from .models import Mission
 from .models import Frame
-from .models import Object
+from .models import Anomaly
 from .models import TelemetryAttribute
 
 
@@ -25,8 +25,9 @@ class MissionSerializer(ModelSerializer):
     class Meta:
         model = Mission
         fields = (
-        'id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'frames', 'telemetries', 'video_file')
-        read_only_fields = ('asset', 'frames', 'telemetries')
+            'id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'frames', 'telemetries_att',
+            'video_file', 'telemetries_pos')
+        read_only_fields = ('asset', 'frames', 'telemetries_att', 'telemetries_pos')
 
 
 class FrameSerializer(ModelSerializer):
@@ -38,7 +39,7 @@ class FrameSerializer(ModelSerializer):
 
 class ObjectSerializer(ModelSerializer):
     class Meta:
-        model = Object
+        model = Anomaly
         fields = ('id', 'type', 'status', 'confidence', 'box', 'frame')
         read_only_fields = ('frame',)
 

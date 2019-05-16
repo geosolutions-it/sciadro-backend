@@ -1,15 +1,16 @@
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from service.utils.asset import parse_asset_data
 from service.utils.storage_handler import SystemFileStorage
 from service.utils.telemetry import parse_telemetry_data
-from .models import Asset
+from .models import Asset, TelemetryPosition
 from .serializers import AssetSerializer
 from .models import Mission
 from .serializers import MissionSerializer
 from .models import Frame
 from .serializers import FrameSerializer
-from .models import Object
+from .models import Anomaly
 from .serializers import ObjectSerializer
 from .models import TelemetryAttribute
 from .serializers import TelemetrySerializer
@@ -59,10 +60,20 @@ class MissionViewSet(ModelViewSet):
         m.video_file.save(video_file.name.split('/')[-1], video_file)
         with storage_manager.get_telem_file() as telem:
             telemetry = parse_telemetry_data(telem)
-            pass
+            for telem_attribute in telemetry.attributes:
+                values = telem_attribute.__dict__
+                values.update({'mission': m})
+                TelemetryAttribute.objects.create(**values)
+
+            for telem_pos in telemetry.positions:
+                values = telem_pos.__dict__
+                values.update({'mission': m})
+                TelemetryPosition.objects.create(**values)
 
         with storage_manager.get_xml_file() as xml:
-            pass
+            for frame in parse_asset_data(xml).frames:
+                frame.create_db_entity(m)
+
         storage_manager.delete_temporary_files()
 
     def __create_target_dir(self, file_path):
@@ -106,7 +117,7 @@ class FrameViewSet(NestedViewSetMixin):
 
 
 class ObjectViewSet(NestedViewSetMixin):
-    queryset = Object.objects.all()
+    queryset = Anomaly.objects.all()
     serializer_class = ObjectSerializer
     parent_descriptor = ParentDescriptor(
         class_=Frame,

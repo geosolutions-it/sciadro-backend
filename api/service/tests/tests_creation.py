@@ -3,7 +3,7 @@ from django.test import TestCase
 from service.models import Asset
 from service.models import Mission
 from service.models import Frame
-from service.models import Object
+from service.models import Anomaly
 from service.models import TelemetryAttribute
 from service.models import MissionData
 from service.models import VideoData
@@ -15,7 +15,7 @@ class BasicModelTest(TestCase):
         VideoData.objects.all().delete()
         MissionData.objects.all().delete()
         TelemetryAttribute.objects.all().delete()
-        Object.objects.all().delete()
+        Anomaly.objects.all().delete()
         Frame.objects.all().delete()
         Mission.objects.all().delete()
         Asset.objects.all().delete()
@@ -28,7 +28,7 @@ class BasicModelTest(TestCase):
         mission.save()
         frame = Frame(mission=mission, index=0, location=Point())
         frame.save()
-        object_ = Object(frame=frame, confidence=0, x_min=0, x_max=0, y_min=0, y_max=0)
+        object_ = Anomaly(frame=frame, confidence=0, x_min=0, x_max=0, y_min=0, y_max=0)
         object_.save()
         telemetry = TelemetryAttribute(mission=mission)
         telemetry.save()

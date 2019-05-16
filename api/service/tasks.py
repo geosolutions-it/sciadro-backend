@@ -2,7 +2,7 @@ from celery import shared_task
 # from .models import MissionData
 from .models import Mission
 from .models import Frame
-from .models import Object
+from .models import Anomaly
 from .utils.asset import parse_asset_data
 from .utils.telemetry import parse_telemetry_data
 from django.contrib.gis.geos import Point

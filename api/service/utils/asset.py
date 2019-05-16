@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from typing import List
 from typing import Union
 from typing import BinaryIO
-
+from service.models import Frame as DBFrame
+from service.models import Anomaly as DBAnomaly
 
 @dataclass
 class Status:
@@ -21,12 +22,25 @@ class Box:
 
 
 @dataclass
-class Object:
+class Anomaly:
     id: int
     type: str
     status: Status
     type: str
     box: Box
+
+    def create_db_entity(self, frame):
+        #ask about ststuses in the system
+        type = DBAnomaly.INSULATOR
+        status = DBAnomaly.UNKNOWN
+        return DBAnomaly.objects.create(frame=frame,
+                                 type=type,
+                                 status=status,
+                                 confidence=self.status.confidence,
+                                 x_max=self.box.x_max,
+                                 x_min=self.box.x_min,
+                                 y_min=self.box.y_min,
+                                 y_max=self.box.y_max)
 
 
 @dataclass
@@ -53,7 +67,22 @@ class Frame:
     id: Id
     position: Position
     size: Size
-    objects: List[Object]
+    anomalies: List[Anomaly]
+
+    def create_db_entity(self, mission):
+        f = DBFrame.objects.create(
+            index=self.id.index,
+            longitude=self.position.longitude,
+            latitude=self.position.latitude,
+            mission=mission,
+            width=self.size.width,
+            height=self.size.height,
+            depth=self.size.depth
+        )
+        for anomaly in self.anomalies:
+            anomaly.create_db_entity(f)
+        return f
+
 
 
 @dataclass
@@ -107,8 +136,8 @@ def _parse_box(node: Element) -> Box:
     )
 
 
-def _parse_object(node: Element) -> Object:
-    return Object(
+def _parse_object(node: Element) -> Anomaly:
+    return Anomaly(
         id=int(node.find('id').text),
         type=node.find('type').text,
         status=_parse_status(node.find('status')),
@@ -121,7 +150,7 @@ def _parse_frame(node: Element) -> Frame:
         id=_parse_id(node.find('id')),
         position=_parse_position(node.find('pose')),
         size=_parse_size(node.find('size')),
-        objects=list(map(_parse_object, node.find('objects').findall('object')))
+        anomalies=list(map(_parse_object, node.find('objects').findall('object')))
     )
 
 

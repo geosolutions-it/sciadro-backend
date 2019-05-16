@@ -86,15 +86,18 @@ class Frame(Model):
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     index = IntegerField(blank=False, null=False)
 
-    # longitude, latitude
-    location = PointField(blank=False, null=False, srid=settings.DEFAULT_SRID)
+    longitude = FloatField(blank=False, null=False, default=0)
+    latitude = FloatField(blank=False, null=False, default=0)
+    width = IntegerField(blank=False, null=False, default=0)
+    height = IntegerField(blank=False, null=False, default=0)
+    depth = IntegerField(blank=False, null=False, default=0)
 
 
-class Object(Model):
+class Anomaly(Model):
     """Some object of interest inside the frame"""
 
     class Meta:
-        db_table = "object"
+        db_table = "anomaly"
 
     """Object type, up to now there's only one option:
             - insulator
@@ -156,30 +159,3 @@ class TelemetryPosition(Model):
     relative_altitude = FloatField(blank=True, null=True)
     longitude = FloatField(blank=True, null=True)
     latitude = FloatField(blank=True, null=True)
-
-
-# All data is uploaded into mission specific folder
-def upload_to(instance, file_name):
-    return f'{instance.mission.id}/{file_name}'
-
-
-# class MissionData(Model):
-#     """An archive with all data received from drone including telemetry data and video"""
-#     class Meta:
-#         db_table = "mission_file"
-#
-#     UPLOADED = 'UPL'
-#     PROCESSED = 'PRO'
-#
-#     FILE_STATUS_CHOICES = (
-#         (UPLOADED, 'Uploaded'),
-#         (PROCESSED, 'Processed')
-#     )
-#
-#     mission = ForeignKey(Mission, related_name='mission_files', on_delete=CASCADE)
-#
-#     id = UUIDField(primary_key=True, default=uuid4, editable=False)
-#     created = DateTimeField(auto_now_add=True)
-#     status = CharField(max_length=3, choices=FILE_STATUS_CHOICES, default=UPLOADED)
-#     file = FileField(upload_to=upload_to)
-

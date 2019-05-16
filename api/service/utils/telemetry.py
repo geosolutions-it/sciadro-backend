@@ -18,18 +18,18 @@ class TelemetryAttributes:
     roll: float
     pitch: float
     yaw: float
-    rollspeed: float
-    pitchspeed: float
-    yawspeed: float
+    roll_speed: float
+    pitch_speed: float
+    yaw_speed: float
 
 
 @dataclass
 class TelemetryPosition:
     time: int
-    lat: float
-    lon: float
-    alt: float
-    relative_alt: float
+    latitude: float
+    longitude: float
+    altitude: float
+    relative_altitude: float
 
 
 @dataclass

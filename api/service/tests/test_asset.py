@@ -7,7 +7,7 @@ from ..utils.asset import Frame
 from ..utils.asset import Id
 from ..utils.asset import Position
 from ..utils.asset import Size
-from ..utils.asset import Object
+from ..utils.asset import Anomaly
 from ..utils.asset import Status
 from ..utils.asset import Box
 from xml.etree.ElementTree import ParseError
@@ -81,7 +81,7 @@ class AssetFileParsing(TestCase):
                         depth=3
                     ),
                     objects=[
-                        Object(
+                        Anomaly(
                             id=1,
                             type='insulator',
                             status=Status(
