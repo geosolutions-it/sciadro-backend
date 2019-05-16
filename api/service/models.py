@@ -125,13 +125,13 @@ class Object(Model):
     y_max = IntegerField(blank=False, null=False)
 
 
-class Telemetry(Model):
+class TelemetryAttribute(Model):
     """Telemetry data received from drone"""
 
     class Meta:
-        db_table = "telemetry"
+        db_table = "telemetry_attribute"
 
-    mission = ForeignKey(Mission, related_name='telemetries', on_delete=CASCADE)
+    mission = ForeignKey(Mission, related_name='telemetries_att', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     time = IntegerField(blank=True, null=True)
@@ -141,10 +141,21 @@ class Telemetry(Model):
     roll_speed = FloatField(blank=True, null=True)
     pitch_speed = FloatField(blank=True, null=True)
     yaw_speed = FloatField(blank=True, null=True)
+
+
+class TelemetryPosition(Model):
+
+    class Meta:
+        db_table = "telemetry_position"
+
+    mission = ForeignKey(Mission, related_name='telemetries_pos', on_delete=CASCADE)
+
+    id = UUIDField(primary_key=True, default=uuid4, editable=False)
+    time = IntegerField(blank=True, null=True)
     altitude = FloatField(blank=True, null=True)
     relative_altitude = FloatField(blank=True, null=True)
-    # longitude, latitude
-    location = PointField(blank=True, null=True, srid=settings.DEFAULT_SRID)
+    longitude = FloatField(blank=True, null=True)
+    latitude = FloatField(blank=True, null=True)
 
 
 # All data is uploaded into mission specific folder

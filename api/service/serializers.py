@@ -1,9 +1,13 @@
 from rest_framework.serializers import ModelSerializer
+
+from service.utils.telemetry import TelemetryPosition
 from .models import Asset
 from .models import Mission
 from .models import Frame
 from .models import Object
-from .models import Telemetry
+from .models import TelemetryAttribute
+
+
 # from .models import TelemetryData
 # from .models import MissionData
 # from .models import VideoData
@@ -20,7 +24,8 @@ class AssetSerializer(ModelSerializer):
 class MissionSerializer(ModelSerializer):
     class Meta:
         model = Mission
-        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'frames', 'telemetries', 'video_file')
+        fields = (
+        'id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'frames', 'telemetries', 'video_file')
         read_only_fields = ('asset', 'frames', 'telemetries')
 
 
@@ -40,11 +45,16 @@ class ObjectSerializer(ModelSerializer):
 
 class TelemetrySerializer(ModelSerializer):
     class Meta:
-        model = Telemetry
-        fields = ('id', 'mission', 'time', 'roll', 'pitch', 'yaw', 'roll_speed', 'pitch_speed', 'yaw_speed', 'altitude',
-                  'relative_altitude', 'location')
+        model = TelemetryAttribute
+        fields = ('id', 'mission', 'time', 'roll', 'pitch', 'yaw', 'roll_speed', 'pitch_speed', 'yaw_speed')
         read_only_fields = ('mission',)
 
+
+class TelemetryPositionSerializer(ModelSerializer):
+    class Meta:
+        model = TelemetryPosition
+        fields = ('id', 'mission', 'time', 'altitude', 'relative_altitude', 'longitude', 'latitude')
+        read_only_fields = ('mission',)
 
 # class TelemetryDataSerializer(ModelSerializer):
 #     class Meta:

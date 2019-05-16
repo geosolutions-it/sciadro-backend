@@ -11,7 +11,7 @@ from .models import Frame
 from .serializers import FrameSerializer
 from .models import Object
 from .serializers import ObjectSerializer
-from .models import Telemetry
+from .models import TelemetryAttribute
 from .serializers import TelemetrySerializer
 
 # from .models import TelemetryData
@@ -116,7 +116,7 @@ class ObjectViewSet(NestedViewSetMixin):
 
 
 class TelemetryViewSet(NestedViewSetMixin):
-    queryset = Telemetry.objects.all()
+    queryset = TelemetryAttribute.objects.all()
     serializer_class = TelemetrySerializer
     parent_descriptor = ParentDescriptor(
         class_=Mission,
