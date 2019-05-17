@@ -139,7 +139,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../'))
 ################################################################################
 # REST SETTINGS
 ################################################################################
-REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'service.utils.exception.api_exception_handler'
-}
+# REST_FRAMEWORK = {
+#     'EXCEPTION_HANDLER': 'service.utils.exception.api_exception_handler'
+# }
 # ############################################################################## #

@@ -33,14 +33,14 @@ class MissionSerializer(ModelSerializer):
 class FrameSerializer(ModelSerializer):
     class Meta:
         model = Frame
-        fields = ('id', 'line', 'mission', 'index', 'location', '_objects')
+        fields = ('id', 'mission', 'index', '_objects', 'longitude', 'latitude')
         read_only_fields = ('mission', '_objects')
 
 
-class ObjectSerializer(ModelSerializer):
+class AnomalySerializer(ModelSerializer):
     class Meta:
         model = Anomaly
-        fields = ('id', 'type', 'status', 'confidence', 'box', 'frame')
+        fields = ('id', 'type', 'status', 'confidence', 'x_min', 'frame', 'x_max', 'y_min', 'y_max')
         read_only_fields = ('frame',)
 
 
