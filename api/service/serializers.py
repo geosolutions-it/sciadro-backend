@@ -8,11 +8,6 @@ from .models import Anomaly
 from .models import TelemetryAttribute
 
 
-# from .models import TelemetryData
-# from .models import MissionData
-# from .models import VideoData
-
-
 class AssetSerializer(ModelSerializer):
     class Meta:
         model = Asset
@@ -33,8 +28,8 @@ class MissionSerializer(ModelSerializer):
 class FrameSerializer(ModelSerializer):
     class Meta:
         model = Frame
-        fields = ('id', 'mission', 'index', '_objects', 'longitude', 'latitude')
-        read_only_fields = ('mission', '_objects')
+        fields = ('id', 'mission', 'index', '_anomalies', 'longitude', 'latitude')
+        read_only_fields = ('mission', '_anomalies')
 
 
 class AnomalySerializer(ModelSerializer):
@@ -56,23 +51,3 @@ class TelemetryPositionSerializer(ModelSerializer):
         model = TelemetryPosition
         fields = ('id', 'mission', 'time', 'altitude', 'relative_altitude', 'longitude', 'latitude')
         read_only_fields = ('mission',)
-
-# class TelemetryDataSerializer(ModelSerializer):
-#     class Meta:
-#         model = TelemetryData
-#         fields = ('file', 'status', 'mission')
-#         read_only_fields = ('mission',)
-
-
-# class MissionDataSerializer(ModelSerializer):
-#     class Meta:
-#         model = MissionData
-#         fields = ('file', 'status')
-#         read_only_fields = ('mission',)
-
-
-# class VideoDataSerializer(ModelSerializer):
-#     class Meta:
-#         model = VideoData
-#         fields = ('file', 'status')
-#         read_only_fields = ('mission',)

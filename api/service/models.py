@@ -115,7 +115,7 @@ class Anomaly(Model):
         (UNKNOWN, 'Unknown'),
     )
 
-    frame = ForeignKey(Frame, related_name='_objects', on_delete=CASCADE)
+    frame = ForeignKey(Frame, related_name='_anomalies', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     type = CharField(max_length=3, choices=TYPE_CHOICES)
