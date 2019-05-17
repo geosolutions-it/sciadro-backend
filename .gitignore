@@ -2,7 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+./api/data/
+./api/static/
 # C extensions
 *.so
 
@@ -102,3 +103,16 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# PyCharm
+.idea/
+
+# Mac OS
+.DS_Store
+
+nohup.out
+
+dump.rdb
+
+api/data/
+

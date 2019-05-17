@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  db:
+    image: kartoza/postgis:11.0-2.5
+
+  rabbit-mq:
+    image: rabbitmq:3.7
+
+  api:
+    build: ./api
+    entrypoint: /code/entrypoint-staging.sh
+    volumes:
+      - ./api:/code
+      - static_volume:/code/static
+    expose:
+      - 8000
+    depends_on:
+      - db
+      - rabbit-mq
+    environment:
+      DEBUG: 0
+      WAIT_HOSTS: db:5432, rabbit-mq:5672
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 8081:8081
+    depends_on:
+      - api
+    volumes:
+      - static_volume:/code/static
+
+volumes:
+  static_volume:
