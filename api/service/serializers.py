@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 
-from service.utils.telemetry import TelemetryPosition
-from .models import Asset
+
+from .models import Asset, TelemetryPosition
 from .models import Mission
 from .models import Frame
 from .models import Anomaly

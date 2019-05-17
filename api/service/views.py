@@ -109,7 +109,7 @@ class TelemetryViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
         telem_att, telem_pos = self.get_queryset()
         return Response({
             'telemetry_attributes': TelemetrySerializer(telem_att, many=True).data,
-            # 'telemetry_positions': TelemetryPositionSerializer(telem_pos, many=True).data
+            'telemetry_positions': TelemetryPositionSerializer(telem_pos, many=True).data
         })
 
     def retrieve(self, request, *args, **kwargs):
