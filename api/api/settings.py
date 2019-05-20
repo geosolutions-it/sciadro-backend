@@ -137,9 +137,47 @@ DEFAULT_SRID = 4326
 PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../'))
 
 ################################################################################
+# LOGGING SETTINGS
+################################################################################
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+        'logfile': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'ingestion_log.log'),
+            'maxBytes': 1024 * 1024 * 100,  # 100MB
+            'backupCount': 5,
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'logfile'],
+        },
+        'exception': {
+            'handlers': ['console', 'logfile'],
+        }
+    }
+}
+# ############################################################################ #
+
+################################################################################
 # REST SETTINGS
 ################################################################################
-# REST_FRAMEWORK = {
-#     'EXCEPTION_HANDLER': 'service.utils.exception.api_exception_handler'
-# }
-# ############################################################################## #
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'service.utils.exception.api_exception_handler'
+}
+# ############################################################################ #
