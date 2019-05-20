@@ -32,7 +32,7 @@ class MissionViewSet(ModelViewSet):
     serializer_class = MissionSerializer
 
     def list(self, request, *args, **kwargs):
-        return Response(self.serializer_class(self.queryset, many=True).data)
+        return Response(self.serializer_class(self.queryset.filter(asset=self.kwargs.get('asset_uuid')), many=True).data)
 
     def create(self, request, *args, **kwargs):
         file_type = 'application/zip'
@@ -63,6 +63,7 @@ class MissionViewSet(ModelViewSet):
                 frame.create_db_entity(m)
 
         storage_manager.delete_temporary_files()
+        return Response(MissionSerializer(m).data)
 
 
 class VideoStreamView(GenericViewSet, ListModelMixin):
