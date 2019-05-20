@@ -32,7 +32,6 @@ class MissionViewSet(ModelViewSet):
     serializer_class = MissionSerializer
 
     def list(self, request, *args, **kwargs):
-        raise BadRequestError("TEST")
         return Response(self.serializer_class(self.queryset.filter(asset=self.kwargs.get('asset_uuid')), many=True).data)
 
     def create(self, request, *args, **kwargs):
