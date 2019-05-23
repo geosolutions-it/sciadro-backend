@@ -1,10 +1,13 @@
 from django.http import HttpResponse
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
+from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from django.utils.translation import gettext as _
 
+from service.tasks import convert_avi_to_mp4, TASK_ENUM
 from service.utils.asset import parse_asset_data
-from service.utils.exception import BadRequestError
+from service.utils.exception import BadRequestError, BadFileFormatException
 from service.utils.storage_handler import SystemFileStorage
 from service.utils.telemetry import parse_telemetry_data
 from .models import Asset, TelemetryPosition
@@ -30,13 +33,18 @@ class AssetViewSet(ModelViewSet):
 class MissionViewSet(ModelViewSet):
     queryset = Mission.objects.all()
     serializer_class = MissionSerializer
+    parser_classes = (FileUploadParser,)
 
     def list(self, request, *args, **kwargs):
-        return Response(self.serializer_class(self.queryset.filter(asset=self.kwargs.get('asset_uuid')), many=True).data)
+        return Response(
+            self.serializer_class(self.queryset.filter(asset=self.kwargs.get('asset_uuid')), many=True).data)
 
     def create(self, request, *args, **kwargs):
         file_type = 'application/zip'
         file = self.request.FILES.get('video_file')
+        if file.content_type != file_type:
+            raise BadFileFormatException(_('Only zip file is allowed'))
+
         file_name = file.name
         temporary_file_location = os.path.join(settings.MEDIA_ROOT, self.kwargs.get('asset_uuid'), file_name)
         storage_manager = SystemFileStorage(file_name, temporary_file_location)
@@ -63,7 +71,14 @@ class MissionViewSet(ModelViewSet):
                 frame.create_db_entity(m)
 
         storage_manager.delete_temporary_files()
-        return Response(MissionSerializer(m).data)
+        convert_task = convert_avi_to_mp4.delay(m.id)
+        return Response({
+            'created': MissionSerializer(m).data,
+            'task': {
+                'type': TASK_ENUM.CONVERSION.value,
+                'task_uuid': convert_task.id
+            }
+        })
 
 
 class VideoStreamView(GenericViewSet, ListModelMixin):
@@ -128,7 +143,6 @@ class TelemetryViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
                 ).data
             )
         raise BadRequestError('Telemetry type is required')
-
 
 
 class AnomalyViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):

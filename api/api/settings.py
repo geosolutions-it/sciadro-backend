@@ -119,7 +119,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../'))
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
@@ -128,6 +128,12 @@ MEDIA_URL = 'data/'
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
 CELERY_BROKER_URL = 'amqp://guest:guest@rabbit-mq:5672/'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_RESULT_BACKEND = 'amqp://guest:guest@rabbit-mq:5672/'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TRACK_STARTED = True
 
 if os.getenv('TEST', False):
     DATABASES['default']['HOST'] = 'test-db'
@@ -135,7 +141,7 @@ if os.getenv('TEST', False):
     CELERY_BROKER_URL = 'amqp://guest:guest@test-rabbit-mq:5672/'
 
 DEFAULT_SRID = 4326
-PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../'))
+
 
 ################################################################################
 # LOGGING SETTINGS
