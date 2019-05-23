@@ -16,6 +16,10 @@ class BadRequestError(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
 
 
+class BadFileFormatException(BadRequestError):
+    pass
+
+
 class FileManagementException(APIException):
     pass
 

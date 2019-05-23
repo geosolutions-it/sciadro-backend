@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'rest_framework',
     'service',
+    'rest_framework_swagger',
 ]
 
 MIDDLEWARE = [
