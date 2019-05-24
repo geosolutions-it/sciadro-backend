@@ -57,9 +57,6 @@ class Asset(Model):
     note = TextField(blank=True, null=True)
     geometry = LineStringField(blank=True, null=True, srid=settings.DEFAULT_SRID)
 
-    def test(self, str):
-        x = 10
-        return {}
 
 
 class Mission(Model):
@@ -165,3 +162,15 @@ class TelemetryPosition(Model):
     relative_altitude = FloatField(blank=True, null=True)
     longitude = FloatField(blank=True, null=True)
     latitude = FloatField(blank=True, null=True)
+
+
+class VideoTable(Model):
+
+    class Meta:
+        db_table = "mission_video"
+
+    mission = ForeignKey(Mission, related_name='video_mission', on_delete=CASCADE)
+    width = IntegerField()
+    height = IntegerField()
+    depth = IntegerField()
+    video_file = FileField(upload_to=upload_to)
