@@ -80,7 +80,7 @@ class AssetFileParsing(TestCase):
                         height=768,
                         depth=3
                     ),
-                    objects=[
+                    anomalies=[
                         Anomaly(
                             id=1,
                             type='insulator',

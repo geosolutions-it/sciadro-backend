@@ -1,5 +1,7 @@
+import subprocess
+from enum import Enum
+
 from celery import shared_task
-# from .models import MissionData
 from .models import Mission
 from .models import Frame
 from .models import Anomaly
@@ -7,6 +9,27 @@ from .utils.asset import parse_asset_data
 from .utils.telemetry import parse_telemetry_data
 from django.contrib.gis.geos import Point
 from django.contrib.gis.geos import Polygon
+from celery import current_task
+import os
+from api.celery import app
+
+
+class TASK_ENUM(Enum):
+    CONVERSION = 'CONVERSION'
+
+
+@app.task(bind=True)
+def convert_avi_to_mp4(self, mission_uuid):
+    mission = Mission.objects.get(id=mission_uuid)
+    to_remove = mission.video_file.path
+    output = f'{mission.video_file.path.split(".")[0]}.{"mp4"}'
+    p = subprocess.Popen(f'ffmpeg -i {mission.video_file.path} {output}', stdout=subprocess.PIPE, shell=True)
+    o,e = p.communicate()
+    with open(output, 'rb') as mp4_file:
+        mission.video_file.save(f'{output.split("/")[-1]}', mp4_file)
+    os.remove(to_remove)
+    return True
+
 
 
 # @shared_task(bind=True)

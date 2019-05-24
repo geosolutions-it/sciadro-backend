@@ -19,25 +19,8 @@ class AssetTests(BaseTest):
     def test_create_asset(self) -> None:
         response = self.client.post(
             reverse('assets-list'),
-            {},
+            {'name': 'test_asset', 'type': 'POW'},
             format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Asset.objects.count(), 1)
-
-
-class MissionTests(BaseTest):
-    def test_create_mission(self) -> None:
-        response = self.client.post(
-            reverse('assets-list'),
-            {},
-            format='json'
-        )
-        asset_pk = response.data['id']
-        response = self.client.post(
-            reverse('missions-list', kwargs={'asset_pk': asset_pk}),
-            {},
-            format='json'
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Mission.objects.count(), 1)
