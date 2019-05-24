@@ -55,7 +55,7 @@ class Asset(Model):
     modified = DateTimeField(auto_now=True)
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
-    geometry = LineStringField(blank=True, null=True, srid=settings.DEFAULT_SRID)
+    geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
 
     def test(self, str):
         x = 10
