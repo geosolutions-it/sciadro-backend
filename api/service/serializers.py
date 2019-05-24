@@ -1,6 +1,6 @@
 import json
 
-from django.contrib.gis.geos import LineString
+from django.contrib.gis.geos import LineString, Point
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, JSONField
 
 from .models import Asset, TelemetryPosition
@@ -14,13 +14,14 @@ class GeometryField(JSONField):
 
     def to_representation(self, value):
         if value.geometry:
-            return value.geometry.array
+            return json.loads(value.geometry.geojson)
         return []
 
     def to_internal_value(self, data):
         geom_json = json.loads(data)
+        coords = geom_json.get('coordinates')
         ret = {
-            "geometry": LineString(geom_json.get('coordinates'))
+            "geometry": LineString(coords) if len(coords) > 1 else Point(coords[0])
         }
         return ret
 
@@ -46,7 +47,7 @@ class MissionSerializer(ModelSerializer):
         read_only_fields = ('asset', 'frames', 'telemetries_att', 'telemetries_pos', 'geometry')
 
     def get_geometry(self, obj):
-        return obj.geometry.array
+        return json.loads(obj.geometry.geojson)
 
 
 class FrameSerializer(ModelSerializer):
