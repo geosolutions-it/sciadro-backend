@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'rest_framework',
     'service',
+    'rest_framework_swagger',
 ]
 
 MIDDLEWARE = [
@@ -118,7 +119,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../'))
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
@@ -127,6 +128,12 @@ MEDIA_URL = 'data/'
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
 CELERY_BROKER_URL = 'amqp://guest:guest@rabbit-mq:5672/'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_RESULT_BACKEND = 'amqp://guest:guest@rabbit-mq:5672/'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TRACK_STARTED = True
 
 if os.getenv('TEST', False):
     DATABASES['default']['HOST'] = 'test-db'
@@ -134,12 +141,50 @@ if os.getenv('TEST', False):
     CELERY_BROKER_URL = 'amqp://guest:guest@test-rabbit-mq:5672/'
 
 DEFAULT_SRID = 4326
-PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../'))
+
+
+################################################################################
+# LOGGING SETTINGS
+################################################################################
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+        'logfile': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'ingestion_log.log'),
+            'maxBytes': 1024 * 1024 * 100,  # 100MB
+            'backupCount': 5,
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'logfile'],
+        },
+        'exception': {
+            'handlers': ['console', 'logfile'],
+        }
+    }
+}
+# ############################################################################ #
 
 ################################################################################
 # REST SETTINGS
 ################################################################################
-# REST_FRAMEWORK = {
-#     'EXCEPTION_HANDLER': 'service.utils.exception.api_exception_handler'
-# }
-# ############################################################################## #
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'service.utils.exception.api_exception_handler'
+}
+# ############################################################################ #

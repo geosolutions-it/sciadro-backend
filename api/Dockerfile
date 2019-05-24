@@ -2,6 +2,7 @@ FROM python:3.7.3
 ENV PYTHONUNBUFFERED 1
 RUN apt-get update -y
 RUN apt-get -y install binutils libproj-dev gdal-bin
+RUN apt-get -y install ffmpeg
 RUN mkdir /code
 WORKDIR /code
 COPY . .
