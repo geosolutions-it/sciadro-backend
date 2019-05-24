@@ -11,7 +11,7 @@ from django.contrib.gis.db.models import PointField
 from django.db.models import IntegerField
 from django.db.models import FileField
 from django.conf import settings
-from django.contrib.gis.db.models import GeometryField
+from django.contrib.gis.db.models import GeometryField, LineStringField
 from django.utils.translation import gettext as _
 from datetime import datetime
 
@@ -55,7 +55,7 @@ class Asset(Model):
     modified = DateTimeField(auto_now=True)
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
-    geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
+    geometry = LineStringField(blank=True, null=True, srid=settings.DEFAULT_SRID)
 
 
 class Mission(Model):
@@ -71,8 +71,9 @@ class Mission(Model):
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
     created = DateTimeField(auto_now_add=True)
-    geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
+    geometry = LineStringField(blank=True, null=True, srid=settings.DEFAULT_SRID)
     video_file = FileField(upload_to=upload_to)
+
 
 
 class Frame(Model):
@@ -91,6 +92,7 @@ class Frame(Model):
     width = IntegerField(blank=False, null=False, default=0)
     height = IntegerField(blank=False, null=False, default=0)
     depth = IntegerField(blank=False, null=False, default=0)
+
 
 
 class Anomaly(Model):

@@ -22,7 +22,7 @@ class MissionSerializer(ModelSerializer):
         fields = (
             'id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'frames', 'telemetries_att',
             'video_file', 'telemetries_pos')
-        read_only_fields = ('asset', 'frames', 'telemetries_att', 'telemetries_pos')
+        read_only_fields = ('asset', 'frames', 'telemetries_att', 'telemetries_pos', 'geometry')
 
 
 class FrameSerializer(ModelSerializer):
