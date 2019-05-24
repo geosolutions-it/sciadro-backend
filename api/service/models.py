@@ -57,10 +57,6 @@ class Asset(Model):
     note = TextField(blank=True, null=True)
     geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
 
-    def test(self, str):
-        x = 10
-        return {}
-
 
 class Mission(Model):
     """All data is associated with Mission class, multiply missions can be attached to a single asset"""
@@ -75,7 +71,7 @@ class Mission(Model):
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
     created = DateTimeField(auto_now_add=True)
-    geometry = LineStringField(blank=True, null=True, srid=settings.DEFAULT_SRID)
+    geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
     video_file = FileField(upload_to=upload_to)
 
 
