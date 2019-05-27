@@ -11,7 +11,7 @@ from django.contrib.gis.db.models import PointField
 from django.db.models import IntegerField
 from django.db.models import FileField
 from django.conf import settings
-from django.contrib.gis.db.models import GeometryField
+from django.contrib.gis.db.models import GeometryField, LineStringField
 from django.utils.translation import gettext as _
 from datetime import datetime
 
@@ -75,6 +75,7 @@ class Mission(Model):
     video_file = FileField(upload_to=upload_to)
 
 
+
 class Frame(Model):
     """Video frame object"""
 
@@ -91,6 +92,7 @@ class Frame(Model):
     width = IntegerField(blank=False, null=False, default=0)
     height = IntegerField(blank=False, null=False, default=0)
     depth = IntegerField(blank=False, null=False, default=0)
+
 
 
 class Anomaly(Model):

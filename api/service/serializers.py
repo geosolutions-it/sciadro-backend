@@ -1,5 +1,7 @@
-from rest_framework.serializers import ModelSerializer
+import json
 
+from django.contrib.gis.geos import LineString, Point
+from rest_framework.serializers import ModelSerializer, SerializerMethodField, JSONField
 
 from .models import Asset, TelemetryPosition
 from .models import Mission
@@ -8,7 +10,25 @@ from .models import Anomaly
 from .models import TelemetryAttribute
 
 
+class GeometryField(JSONField):
+
+    def to_representation(self, value):
+        if value.geometry:
+            return json.loads(value.geometry.geojson)
+        return []
+
+    def to_internal_value(self, data):
+        geom_json = json.loads(data)
+        coords = geom_json.get('coordinates')
+        ret = {
+            "geometry": LineString(coords) if len(coords) > 1 else Point(coords[0])
+        }
+        return ret
+
+
 class AssetSerializer(ModelSerializer):
+    geometry = GeometryField(source='*')
+
     class Meta:
         model = Asset
         fields = ('id', 'type', 'name', 'created', 'modified', 'description', 'note', 'geometry',
@@ -17,12 +37,17 @@ class AssetSerializer(ModelSerializer):
 
 
 class MissionSerializer(ModelSerializer):
+    geometry = SerializerMethodField()
+
     class Meta:
         model = Mission
         fields = (
             'id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'frames', 'telemetries_att',
             'video_file', 'telemetries_pos')
-        read_only_fields = ('asset', 'frames', 'telemetries_att', 'telemetries_pos')
+        read_only_fields = ('asset', 'frames', 'telemetries_att', 'telemetries_pos', 'geometry')
+
+    def get_geometry(self, obj):
+        return json.loads(obj.geometry.geojson)
 
 
 class FrameSerializer(ModelSerializer):

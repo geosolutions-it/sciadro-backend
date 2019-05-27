@@ -1,3 +1,4 @@
+from django.contrib.gis.geos import LineString
 from django.http import HttpResponse
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.parsers import FileUploadParser
@@ -33,7 +34,6 @@ class AssetViewSet(ModelViewSet):
 class MissionViewSet(ModelViewSet):
     queryset = Mission.objects.all()
     serializer_class = MissionSerializer
-    parser_classes = (FileUploadParser,)
 
     def list(self, request, *args, **kwargs):
         return Response(
@@ -54,6 +54,8 @@ class MissionViewSet(ModelViewSet):
         m.asset_id = self.kwargs.get('asset_uuid')
         video_file = storage_manager.get_video_file()
         m.video_file.save(video_file.name.split('/')[-1], video_file)
+        mission_geometry = []
+
         with storage_manager.get_telem_file() as telem:
             telemetry = parse_telemetry_data(telem)
             for telem_attribute in telemetry.attributes:
@@ -64,8 +66,10 @@ class MissionViewSet(ModelViewSet):
             for telem_pos in telemetry.positions:
                 values = telem_pos.__dict__
                 values.update({'mission': m})
+                mission_geometry.append((telem_pos.longitude, telem_pos.latitude))
                 TelemetryPosition.objects.create(**values)
-
+        m.geometry = LineString(mission_geometry)
+        m.save()
         with storage_manager.get_xml_file() as xml:
             for frame in parse_asset_data(xml).frames:
                 frame.create_db_entity(m)
