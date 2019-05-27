@@ -3,7 +3,7 @@ import json
 from django.contrib.gis.geos import LineString, Point
 from rest_framework.serializers import ModelSerializer, SerializerMethodField, JSONField
 
-from .models import Asset, TelemetryPosition
+from .models import Asset, TelemetryPosition, MissionVideo
 from .models import Mission
 from .models import Frame
 from .models import Anomaly
@@ -19,11 +19,20 @@ class GeometryField(JSONField):
 
     def to_internal_value(self, data):
         geom_json = json.loads(data)
-        coords = geom_json.get('coordinates')
-        ret = {
-            "geometry": LineString(coords) if len(coords) > 1 else Point(coords[0])
-        }
-        return ret
+        if geom_json:
+            coords = geom_json.get('coordinates')
+            ret = {
+                "geometry": LineString(coords) if len(coords) > 1 else Point(coords[0])
+            }
+            return ret
+        return []
+
+
+class MissionVideoSerializer(ModelSerializer):
+    class Meta:
+        model = MissionVideo
+        fields = ('width', 'height', 'depth', 'video_file')
+        read_only_fields = ('width', 'height', 'depth')
 
 
 class AssetSerializer(ModelSerializer):
@@ -38,12 +47,13 @@ class AssetSerializer(ModelSerializer):
 
 class MissionSerializer(ModelSerializer):
     geometry = SerializerMethodField()
+    mission_video = MissionVideoSerializer()
 
     class Meta:
         model = Mission
         fields = (
             'id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'frames', 'telemetries_att',
-            'video_file', 'telemetries_pos')
+            'telemetries_pos', 'mission_video')
         read_only_fields = ('asset', 'frames', 'telemetries_att', 'telemetries_pos', 'geometry')
 
     def get_geometry(self, obj):

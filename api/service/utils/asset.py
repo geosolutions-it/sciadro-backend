@@ -74,10 +74,7 @@ class Frame:
             index=self.id.index,
             longitude=self.position.longitude,
             latitude=self.position.latitude,
-            mission=mission,
-            width=self.size.width,
-            height=self.size.height,
-            depth=self.size.depth
+            mission=mission
         )
         for anomaly in self.anomalies:
             anomaly.create_db_entity(f)
