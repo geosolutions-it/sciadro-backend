@@ -20,6 +20,7 @@ def convert_avi_to_mp4(self, mission_uuid):
     with open(output, 'rb') as mp4_file:
         mission.mission_video.video_file.save(f'{output.split("/")[-1]}', mp4_file)
     os.remove(to_remove)
+    os.remove(output)
     return True
 
 
