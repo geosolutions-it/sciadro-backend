@@ -15,7 +15,7 @@ class GeometryField(JSONField):
     def to_representation(self, value):
         if value.geometry:
             return json.loads(value.geometry.geojson)
-        return []
+        return {}
 
     def to_internal_value(self, data):
         geom_json = json.loads(data)
@@ -25,7 +25,7 @@ class GeometryField(JSONField):
                 "geometry": LineString(coords) if len(coords) > 1 else Point(coords[0])
             }
             return ret
-        return []
+        return {}
 
 
 class MissionVideoSerializer(ModelSerializer):
@@ -57,7 +57,10 @@ class MissionSerializer(ModelSerializer):
         read_only_fields = ('asset', 'frames', 'telemetries_att', 'telemetries_pos', 'geometry')
 
     def get_geometry(self, obj):
-        return json.loads(obj.geometry.geojson)
+        if obj.geometry:
+            return json.loads(obj.geometry.geojson)
+        else:
+            return {}
 
 
 class FrameSerializer(ModelSerializer):
