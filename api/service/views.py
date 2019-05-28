@@ -86,7 +86,6 @@ class MissionViewSet(ModelViewSet):
         m.save()
         video_file = storage_manager.get_video_file()
         mission_video = MissionVideo()
-
         mission_geometry = []
 
         with storage_manager.get_telem_file() as telem:
