@@ -1,6 +1,9 @@
+from collections import OrderedDict
+
 from django.contrib.gis.geos import LineString
 from django.http import HttpResponse
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
@@ -26,18 +29,46 @@ from django.conf import settings
 import os
 
 
+class ResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+
+    def get_paginated_response(self, data):
+        return Response(OrderedDict([
+            ('items', self.page.paginator.count),
+            ('page_size', self.page_size),
+            ('current_page', self.page.number),
+            ('next', self.get_next_link()),
+            ('previous', self.get_previous_link()),
+            ('results', data)
+        ]))
+
+
 class AssetViewSet(ModelViewSet):
     queryset = Asset.objects.all()
     serializer_class = AssetSerializer
+    pagination_class = ResultsSetPagination
+
+    def list(self, request, *args, **kwargs):
+        page = self.paginate_queryset(self.queryset)
+        if page:
+            return self.get_paginated_response(self.serializer_class(page, many=True).data)
+        return Response(self.serializer_class(self.queryset,
+                                              many=True).data)
 
 
 class MissionViewSet(ModelViewSet):
     queryset = Mission.objects.all()
     serializer_class = MissionSerializer
+    pagination_class = ResultsSetPagination
 
     def list(self, request, *args, **kwargs):
-        return Response(
-            self.serializer_class(self.queryset.filter(asset=self.kwargs.get('asset_uuid')), many=True).data)
+        filtered_qs = self.queryset.filter(asset=self.kwargs.get('asset_uuid'))
+        page = self.paginate_queryset(filtered_qs)
+        if page:
+            return self.get_paginated_response(self.serializer_class(page, many=True).data)
+        return Response(self.serializer_class(filtered_qs,
+                                              many=True).data)
 
     def create(self, request, *args, **kwargs):
         file_type = 'application/zip'
@@ -55,7 +86,6 @@ class MissionViewSet(ModelViewSet):
         m.save()
         video_file = storage_manager.get_video_file()
         mission_video = MissionVideo()
-
 
         mission_geometry = []
 
@@ -108,12 +138,20 @@ class VideoStreamView(GenericViewSet, ListModelMixin):
 
 class FrameViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
     queryset = Frame.objects.all()
+    serializer_class = FrameSerializer
+    pagination_class = ResultsSetPagination
 
     def list(self, request, *args, **kwargs):
-        return Response(FrameSerializer(self.queryset.filter(
+
+        filtered_qs = self.queryset.filter(
             mission=self.kwargs.get('mission_uuid'),
             mission__asset=self.kwargs.get('asset_uuid')
-        ), many=True).data)
+        )
+        page = self.paginate_queryset(filtered_qs)
+        if page:
+            return self.get_paginated_response(self.serializer_class(page, many=True).data)
+        return Response(self.serializer_class(filtered_qs,
+                                              many=True).data)
 
     def retrieve(self, request, *args, **kwargs):
         return Response(
@@ -124,6 +162,7 @@ class FrameViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
 
 
 class TelemetryViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
+    pagination_class = ResultsSetPagination
 
     def get_queryset(self):
         telemetry_att = TelemetryAttribute.objects.filter(
@@ -161,13 +200,20 @@ class TelemetryViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
 
 class AnomalyViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
     queryset = Anomaly.objects.all()
+    serializer_class = AnomalySerializer
+    pagination_class = ResultsSetPagination
 
     def list(self, request, *args, **kwargs):
-        return Response(AnomalySerializer(self.queryset.filter(
+        filtered_qs = self.queryset.filter(
             frame=self.kwargs.get('frame_uuid'),
             frame__mission=self.kwargs.get('mission_uuid'),
             frame__mission__asset=self.kwargs.get('asset_uuid')
-        ), many=True).data)
+        )
+        page = self.paginate_queryset(filtered_qs)
+        if page:
+            return self.get_paginated_response(self.serializer_class(page, many=True).data)
+        return Response(self.serializer_class(filtered_qs,
+                                              many=True).data)
 
     def retrieve(self, request, *args, **kwargs):
         return Response(
@@ -175,3 +221,20 @@ class AnomalyViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
                 self.queryset.get(pk=self.kwargs.get('pk'))
             ).data
         )
+
+
+class AnomalyPerMissionViewSet(GenericViewSet, ListModelMixin):
+    queryset = Anomaly.objects.all()
+    serializer_class = AnomalySerializer
+    pagination_class = ResultsSetPagination
+
+    def list(self, request, *args, **kwargs):
+        filtered_qs = self.queryset.filter(
+            frame__mission=self.kwargs.get('mission_uuid'),
+            frame__mission__asset=self.kwargs.get('asset_uuid')
+        )
+        page = self.paginate_queryset(filtered_qs)
+        if page:
+            return self.get_paginated_response(self.serializer_class(page, many=True).data)
+        return Response(self.serializer_class(filtered_qs,
+                                              many=True).data)

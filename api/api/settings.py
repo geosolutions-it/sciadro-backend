@@ -185,6 +185,6 @@ LOGGING = {
 # REST SETTINGS
 ################################################################################
 REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'service.utils.exception.api_exception_handler'
+    'EXCEPTION_HANDLER': 'service.utils.exception.api_exception_handler',
 }
 # ############################################################################ #
