@@ -1,3 +1,6 @@
+[![Build Status](https://api.travis-ci.com/geosolutions-it/sciadro-backend.svg?branch=master)](https://api.travis-ci.com/geosolutions-it/sciadro-backend)
+[![Code Coverage](https://codecov.io/github/geosolutions-it/sciadro-backend/coverage.svg?branch=master)](https://codecov.io/github/geosolutions-it/sciadro-backend?branch=master)
+
 # sciadro-backend
 
 ## DB Schema
