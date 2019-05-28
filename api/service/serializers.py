@@ -37,12 +37,16 @@ class MissionVideoSerializer(ModelSerializer):
 
 class AssetSerializer(ModelSerializer):
     geometry = GeometryField(source='*')
+    type_name = SerializerMethodField()
 
     class Meta:
         model = Asset
         fields = ('id', 'type', 'name', 'created', 'modified', 'description', 'note', 'geometry',
-                  'missions')
+                  'missions', 'type_name')
         read_only_fields = ('missions',)
+
+    def get_type_name(self, obj):
+        return list(filter(lambda x: x[0] == obj.type, Asset.TYPE_CHOICES))[0][1]
 
 
 class MissionSerializer(ModelSerializer):
@@ -51,10 +55,8 @@ class MissionSerializer(ModelSerializer):
 
     class Meta:
         model = Mission
-        fields = (
-            'id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'frames', 'telemetries_att',
-            'telemetries_pos', 'mission_video')
-        read_only_fields = ('asset', 'frames', 'telemetries_att', 'telemetries_pos', 'geometry')
+        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'mission_video')
+        read_only_fields = ('asset', 'geometry')
 
     def get_geometry(self, obj):
         if obj.geometry:
@@ -71,10 +73,22 @@ class FrameSerializer(ModelSerializer):
 
 
 class AnomalySerializer(ModelSerializer):
+
+    type_name = SerializerMethodField()
+    status_name = SerializerMethodField()
+
     class Meta:
         model = Anomaly
-        fields = ('id', 'type', 'status', 'confidence', 'x_min', 'frame', 'x_max', 'y_min', 'y_max')
+        fields = ('id', 'type', 'status', 'confidence', 'x_min', 'frame', 'x_max', 'y_min', 'y_max', 'type_name', 'status_name')
         read_only_fields = ('frame',)
+
+    def get_type_name(self, obj):
+        return list(filter(lambda x: x[0] == obj.type, Anomaly.TYPE_CHOICES))[0][1]
+
+    def get_status_name(self, obj):
+        return list(filter(lambda x: x[0] == obj.status, Anomaly.STATUS_CHOICES))[0][1]
+
+
 
 
 class TelemetrySerializer(ModelSerializer):
