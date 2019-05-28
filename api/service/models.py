@@ -66,7 +66,6 @@ class MissionVideo(Model):
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     width = IntegerField()
     height = IntegerField()
-    depth = IntegerField()
     video_file = FileField(upload_to=upload_to)
     mime_type = CharField(default='video/mp4', max_length=50)
     fps = FloatField(null=True)

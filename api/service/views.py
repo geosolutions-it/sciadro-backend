@@ -76,7 +76,6 @@ class MissionViewSet(ModelViewSet):
         with storage_manager.get_xml_file() as xml:
             for frame in parse_asset_data(xml).frames:
                 if set_frame:
-                    mission_video.depth = frame.size.depth
                     mission_video.width = frame.size.width
                     mission_video.height = frame.size.height
                     set_frame = False
