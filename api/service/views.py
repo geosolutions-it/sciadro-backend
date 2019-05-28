@@ -11,7 +11,7 @@ from service.utils.asset import parse_asset_data
 from service.utils.exception import BadRequestError, BadFileFormatException
 from service.utils.storage_handler import SystemFileStorage
 from service.utils.telemetry import parse_telemetry_data
-from .models import Asset, TelemetryPosition
+from .models import Asset, TelemetryPosition, MissionVideo
 from .serializers import AssetSerializer, TelemetryPositionSerializer
 from .models import Mission
 from .serializers import MissionSerializer
@@ -41,7 +41,7 @@ class MissionViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         file_type = 'application/zip'
-        file = self.request.FILES.get('video_file')
+        file = self.request.FILES.get('mission_video.video_file')
         if file.content_type != file_type:
             raise BadFileFormatException(_('Only zip file is allowed'))
 
@@ -52,8 +52,11 @@ class MissionViewSet(ModelViewSet):
         storage_manager.unzip_file()
         m = Mission()
         m.asset_id = self.kwargs.get('asset_uuid')
+        m.save()
         video_file = storage_manager.get_video_file()
-        m.video_file.save(video_file.name.split('/')[-1], video_file)
+        mission_video = MissionVideo()
+
+
         mission_geometry = []
 
         with storage_manager.get_telem_file() as telem:
@@ -69,11 +72,18 @@ class MissionViewSet(ModelViewSet):
                 mission_geometry.append((telem_pos.longitude, telem_pos.latitude))
                 TelemetryPosition.objects.create(**values)
         m.geometry = LineString(mission_geometry)
-        m.save()
+        set_frame = True
         with storage_manager.get_xml_file() as xml:
             for frame in parse_asset_data(xml).frames:
+                if set_frame:
+                    mission_video.width = frame.size.width
+                    mission_video.height = frame.size.height
+                    set_frame = False
                 frame.create_db_entity(m)
 
+        mission_video.video_file.save(video_file.name.split('/')[-1], video_file)
+        m.mission_video = mission_video
+        m.save()
         storage_manager.delete_temporary_files()
         convert_task = convert_avi_to_mp4.delay(m.id)
         return Response({
@@ -90,9 +100,9 @@ class VideoStreamView(GenericViewSet, ListModelMixin):
 
     def list(self, request, *args, **kwargs):
         m = self.queryset.get(id=self.kwargs.get('mission_uuid'))
-        with m.video_file.open('rb') as video_file:
+        with m.mission_video.video_file.open('rb') as video_file:
             response = HttpResponse(video_file.read(), content_type='video/avi')
-            response['Content-Disposition'] = f'inline; filename={m.video_file.name}'
+            response['Content-Disposition'] = f'inline; filename={m.mission_video.video_file.name}'
             return response
 
 

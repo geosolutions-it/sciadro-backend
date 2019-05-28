@@ -3,7 +3,7 @@ from django.db.models import CharField
 from django.db.models import TextField
 from django.db.models import DateTimeField
 from django.db.models import ForeignKey
-from django.db.models import CASCADE
+from django.db.models import CASCADE, SET_NULL
 from django.db.models import FloatField
 from django.db.models import UUIDField
 from uuid import uuid4
@@ -58,6 +58,19 @@ class Asset(Model):
     geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
 
 
+class MissionVideo(Model):
+
+    class Meta:
+        db_table = "mission_video"
+
+    id = UUIDField(primary_key=True, default=uuid4, editable=False)
+    width = IntegerField()
+    height = IntegerField()
+    video_file = FileField(upload_to=upload_to)
+    mime_type = CharField(default='video/mp4', max_length=50)
+    fps = FloatField(null=True)
+
+
 class Mission(Model):
     """All data is associated with Mission class, multiply missions can be attached to a single asset"""
 
@@ -65,6 +78,7 @@ class Mission(Model):
         db_table = "mission"
 
     asset = ForeignKey(Asset, related_name='missions', on_delete=CASCADE)
+    mission_video = ForeignKey(MissionVideo, null=True, related_name='vid_missions', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     name = CharField(max_length=120, blank=False, null=False, default=default_mission_name)
@@ -72,7 +86,7 @@ class Mission(Model):
     note = TextField(blank=True, null=True)
     created = DateTimeField(auto_now_add=True)
     geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
-    video_file = FileField(upload_to=upload_to)
+
 
 
 
@@ -89,9 +103,7 @@ class Frame(Model):
 
     longitude = FloatField(blank=False, null=False, default=0)
     latitude = FloatField(blank=False, null=False, default=0)
-    width = IntegerField(blank=False, null=False, default=0)
-    height = IntegerField(blank=False, null=False, default=0)
-    depth = IntegerField(blank=False, null=False, default=0)
+
 
 
 
