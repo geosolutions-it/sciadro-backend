@@ -89,6 +89,7 @@ class Mission(Model):
 
 
 
+
 class Frame(Model):
     """Video frame object"""
 
@@ -102,6 +103,7 @@ class Frame(Model):
 
     longitude = FloatField(blank=False, null=False, default=0)
     latitude = FloatField(blank=False, null=False, default=0)
+
 
 
 
