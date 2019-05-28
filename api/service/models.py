@@ -68,6 +68,8 @@ class MissionVideo(Model):
     height = IntegerField()
     depth = IntegerField()
     video_file = FileField(upload_to=upload_to)
+    mime_type = CharField(default='video/mp4', max_length=50)
+    fps = FloatField(null=True)
 
 
 class Mission(Model):
