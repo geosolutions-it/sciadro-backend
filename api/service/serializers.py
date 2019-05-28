@@ -31,8 +31,8 @@ class GeometryField(JSONField):
 class MissionVideoSerializer(ModelSerializer):
     class Meta:
         model = MissionVideo
-        fields = ('width', 'height', 'depth', 'video_file', 'fps', 'mime_type')
-        read_only_fields = ('width', 'height', 'depth', 'fps', 'mime_type')
+        fields = ('width', 'height', 'video_file', 'fps', 'mime_type')
+        read_only_fields = ('width', 'height', 'fps', 'mime_type')
 
 
 class AssetSerializer(ModelSerializer):
