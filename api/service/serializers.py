@@ -1,7 +1,7 @@
 import json
 
 from django.contrib.gis.geos import LineString, Point
-from rest_framework.serializers import ModelSerializer, SerializerMethodField, JSONField
+from rest_framework.serializers import ModelSerializer, SerializerMethodField, JSONField, IntegerField
 
 from .models import Asset, TelemetryPosition, MissionVideo
 from .models import Mission
@@ -73,13 +73,17 @@ class FrameSerializer(ModelSerializer):
 
 
 class AnomalySerializer(ModelSerializer):
-
     type_name = SerializerMethodField()
     status_name = SerializerMethodField()
+    xmax = IntegerField(source='x_max')
+    xmin = IntegerField(source='x_min')
+    ymax = IntegerField(source='y_max')
+    ymin = IntegerField(source='y_min')
 
     class Meta:
         model = Anomaly
-        fields = ('id', 'type', 'status', 'confidence', 'x_min', 'frame', 'x_max', 'y_min', 'y_max', 'type_name', 'status_name')
+        fields = (
+            'id', 'type', 'status', 'confidence', 'frame', 'xmax', 'xmin', 'ymax', 'ymin', 'type_name', 'status_name')
         read_only_fields = ('frame',)
 
     def get_type_name(self, obj):
@@ -87,8 +91,6 @@ class AnomalySerializer(ModelSerializer):
 
     def get_status_name(self, obj):
         return list(filter(lambda x: x[0] == obj.status, Anomaly.STATUS_CHOICES))[0][1]
-
-
 
 
 class TelemetrySerializer(ModelSerializer):
