@@ -55,7 +55,7 @@ class MissionSerializer(ModelSerializer):
 
     class Meta:
         model = Mission
-        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'mission_video')
+        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'mission_video', 'modified')
         read_only_fields = ('asset', 'geometry')
 
     def get_geometry(self, obj):
