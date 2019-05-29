@@ -22,7 +22,7 @@ class GeometryField(JSONField):
         if geom_json:
             coords = geom_json.get('coordinates')
             ret = {
-                "geometry": LineString(coords) if len(coords) > 1 else Point(coords[0])
+                "geometry":  Point(coords)if geom_json.get('type') == 'Point' else LineString(coords)
             }
             return ret
         return {}
