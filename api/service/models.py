@@ -85,6 +85,7 @@ class Mission(Model):
     description = TextField(blank=True, null=True)
     note = TextField(blank=True, null=True)
     created = DateTimeField(auto_now_add=True)
+    modified = DateTimeField(auto_now=True)
     geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
 
 
