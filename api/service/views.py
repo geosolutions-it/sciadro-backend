@@ -72,7 +72,7 @@ class MissionViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         file_type = 'application/zip'
-        file = self.request.FILES.get('mission_video.video_file')
+        file = self.request.FILES.get('mission_file.mission_file')
         if file.content_type != file_type:
             raise BadFileFormatException(_('Only zip file is allowed'))
 
@@ -85,7 +85,7 @@ class MissionViewSet(ModelViewSet):
         m.asset_id = self.kwargs.get('asset_uuid')
         m.save()
         video_file = storage_manager.get_video_file()
-        mission_video = MissionVideo()
+        mission_file = MissionVideo()
         mission_geometry = []
 
         with storage_manager.get_telem_file() as telem:
@@ -105,13 +105,13 @@ class MissionViewSet(ModelViewSet):
         with storage_manager.get_xml_file() as xml:
             for frame in parse_asset_data(xml).frames:
                 if set_frame:
-                    mission_video.width = frame.size.width
-                    mission_video.height = frame.size.height
+                    mission_file.width = frame.size.width
+                    mission_file.height = frame.size.height
                     set_frame = False
                 frame.create_db_entity(m)
 
-        mission_video.video_file.save(video_file.name.split('/')[-1], video_file)
-        m.mission_video = mission_video
+        mission_file.mission_file.save(video_file.name.split('/')[-1], video_file)
+        m.mission_file = mission_file
         m.save()
         storage_manager.delete_temporary_files()
         convert_task = convert_avi_to_mp4.delay(m.id)
@@ -129,9 +129,9 @@ class VideoStreamView(GenericViewSet, ListModelMixin):
 
     def list(self, request, *args, **kwargs):
         m = self.queryset.get(id=self.kwargs.get('mission_uuid'))
-        with m.mission_video.video_file.open('rb') as video_file:
-            response = HttpResponse(video_file.read(), content_type='video/avi')
-            response['Content-Disposition'] = f'inline; filename={m.mission_video.video_file.name}'
+        with m.mission_file.mission_file.open('rb') as mission_file:
+            response = HttpResponse(mission_file.read(), content_type='video/mp4')
+            response['Content-Disposition'] = f'inline; filename={m.mission_file.mission_file.name}'
             return response
 
 

@@ -31,7 +31,7 @@ class GeometryField(JSONField):
 class MissionVideoSerializer(ModelSerializer):
     class Meta:
         model = MissionVideo
-        fields = ('width', 'height', 'video_file', 'fps', 'mime_type')
+        fields = ('width', 'height', 'mission_file', 'fps', 'mime_type')
         read_only_fields = ('width', 'height', 'fps', 'mime_type')
 
 
@@ -51,11 +51,11 @@ class AssetSerializer(ModelSerializer):
 
 class MissionSerializer(ModelSerializer):
     geometry = SerializerMethodField()
-    mission_video = MissionVideoSerializer()
+    mission_file = MissionVideoSerializer()
 
     class Meta:
         model = Mission
-        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'mission_video', 'modified')
+        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'mission_file', 'modified')
         read_only_fields = ('asset', 'geometry')
 
     def get_geometry(self, obj):

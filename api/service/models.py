@@ -66,7 +66,7 @@ class MissionVideo(Model):
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     width = IntegerField()
     height = IntegerField()
-    video_file = FileField(upload_to=upload_to)
+    mission_file = FileField(upload_to=upload_to)
     mime_type = CharField(default='video/mp4', max_length=50)
     fps = FloatField(null=True)
 
@@ -78,7 +78,7 @@ class Mission(Model):
         db_table = "mission"
 
     asset = ForeignKey(Asset, related_name='missions', on_delete=CASCADE)
-    mission_video = ForeignKey(MissionVideo, null=True, related_name='vid_missions', on_delete=CASCADE)
+    mission_file = ForeignKey(MissionVideo, null=True, related_name='vid_missions', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     name = CharField(max_length=120, blank=False, null=False, default=default_mission_name)
