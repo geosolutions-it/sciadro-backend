@@ -3,15 +3,14 @@ from django.db.models import CharField
 from django.db.models import TextField
 from django.db.models import DateTimeField
 from django.db.models import ForeignKey
-from django.db.models import CASCADE, SET_NULL
+from django.db.models import CASCADE
 from django.db.models import FloatField
 from django.db.models import UUIDField
 from uuid import uuid4
-from django.contrib.gis.db.models import PointField
 from django.db.models import IntegerField
 from django.db.models import FileField
 from django.conf import settings
-from django.contrib.gis.db.models import GeometryField, LineStringField
+from django.contrib.gis.db.models import GeometryField
 from django.utils.translation import gettext as _
 from datetime import datetime
 

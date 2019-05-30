@@ -70,6 +70,14 @@ class MissionViewSet(ModelViewSet):
         return Response(self.serializer_class(filtered_qs,
                                               many=True).data)
 
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response(
+            self.serializer_class(
+                self.queryset.get(pk=self.kwargs.get('pk'))
+            ).data
+        )
+
     def create(self, request, *args, **kwargs):
         file_type = 'application/zip'
         file = self.request.FILES.get('mission_file.mission_file')

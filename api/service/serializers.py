@@ -18,11 +18,14 @@ class GeometryField(JSONField):
         return {}
 
     def to_internal_value(self, data):
-        geom_json = json.loads(data)
+        if isinstance(data, str):
+            geom_json = json.loads(data)
+        else:
+            geom_json = data
         if geom_json:
             coords = geom_json.get('coordinates')
             ret = {
-                "geometry":  Point(coords)if geom_json.get('type') == 'Point' else LineString(coords)
+                "geometry": Point(coords) if geom_json.get('type') == 'Point' else LineString(coords)
             }
             return ret
         return {}
