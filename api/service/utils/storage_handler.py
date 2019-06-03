@@ -3,6 +3,8 @@ import os
 import zipfile
 import shutil
 from abc import ABC, abstractmethod
+from os import listdir
+from os.path import isfile
 
 from service.utils.exception import FileManagementException
 
@@ -50,16 +52,20 @@ class AStorageManager(ABC):
 class SystemFileStorage(AStorageManager):
 
     def get_telem_file(self):
-        file_path = f'{os.path.join(self.temp_dir_path, self.file_name)}.{self.telem_ext}'
-        return open(file_path, 'rb')
+        return open(self.find_file_by_ext(self.telem_ext), 'rb')
 
     def get_video_file(self):
-        file_path = f'{os.path.join(self.temp_dir_path, self.file_name)}.{self.video_ext}'
-        return open(file_path, 'rb')
+        return open(self.find_file_by_ext(self.video_ext), 'rb')
 
     def get_xml_file(self):
-        file_path = f'{os.path.join(self.temp_dir_path, self.file_name)}.{self.frame_ext}'
-        return open(file_path, 'r')
+        return open(self.find_file_by_ext(self.frame_ext), 'r')
+
+    def find_file_by_ext(self, file_ext):
+        zip_files = [f for f in listdir(self.temp_dir_path) if isfile(os.path.join(self.temp_dir_path, f))]
+        for file in zip_files:
+            if file_ext in file:
+                file_path = f'{os.path.join(self.temp_dir_path, file)}'
+                return file_path
 
     def create_directory(self):
         if not os.path.exists(os.path.dirname(self.file_path)):

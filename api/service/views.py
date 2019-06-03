@@ -4,7 +4,6 @@ from django.contrib.gis.geos import LineString
 from django.http import HttpResponse
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from django.utils.translation import gettext as _
@@ -45,7 +44,7 @@ class ResultsSetPagination(PageNumberPagination):
 
 
 class AssetViewSet(ModelViewSet):
-    queryset = Asset.objects.all()
+    queryset = Asset.objects.all().order_by('pk')
     serializer_class = AssetSerializer
     pagination_class = ResultsSetPagination
 
@@ -63,13 +62,12 @@ class MissionViewSet(ModelViewSet):
     pagination_class = ResultsSetPagination
 
     def list(self, request, *args, **kwargs):
-        filtered_qs = self.queryset.filter(asset=self.kwargs.get('asset_uuid'))
+        filtered_qs = self.queryset.filter(asset=self.kwargs.get('asset_uuid')).order_by('pk')
         page = self.paginate_queryset(filtered_qs)
         if page:
             return self.get_paginated_response(self.serializer_class(page, many=True).data)
         return Response(self.serializer_class(filtered_qs,
                                               many=True).data)
-
 
     def retrieve(self, request, *args, **kwargs):
         return Response(
@@ -152,7 +150,7 @@ class FrameViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
         filtered_qs = self.queryset.filter(
             mission=self.kwargs.get('mission_uuid'),
             mission__asset=self.kwargs.get('asset_uuid')
-        )
+        ).order_by('pk')
         page = self.paginate_queryset(filtered_qs)
         if page:
             return self.get_paginated_response(self.serializer_class(page, many=True).data)
@@ -173,11 +171,11 @@ class TelemetryViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
     def get_queryset(self):
         telemetry_att = TelemetryAttribute.objects.filter(
             mission=self.kwargs.get('mission_uuid'),
-            mission__asset=self.kwargs.get('asset_uuid'))
+            mission__asset=self.kwargs.get('asset_uuid')).order_by('pk')
         telemetry_pos = TelemetryPosition.objects.filter(
             mission=self.kwargs.get('mission_uuid'),
             mission__asset=self.kwargs.get('asset_uuid')
-        )
+        ).order_by('pk')
         return telemetry_att, telemetry_pos
 
     def list(self, request, *args, **kwargs):
@@ -214,7 +212,7 @@ class AnomalyViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
             frame=self.kwargs.get('frame_uuid'),
             frame__mission=self.kwargs.get('mission_uuid'),
             frame__mission__asset=self.kwargs.get('asset_uuid')
-        )
+        ).order_by('pk')
         page = self.paginate_queryset(filtered_qs)
         if page:
             return self.get_paginated_response(self.serializer_class(page, many=True).data)
@@ -238,7 +236,7 @@ class AnomalyPerMissionViewSet(GenericViewSet, ListModelMixin):
         filtered_qs = self.queryset.filter(
             frame__mission=self.kwargs.get('mission_uuid'),
             frame__mission__asset=self.kwargs.get('asset_uuid')
-        )
+        ).order_by('pk')
         page = self.paginate_queryset(filtered_qs)
         if page:
             return self.get_paginated_response(self.serializer_class(page, many=True).data)
