@@ -34,8 +34,14 @@ class GeometryField(JSONField):
 class MissionVideoSerializer(ModelSerializer):
     class Meta:
         model = MissionVideo
-        fields = ('width', 'height', 'mission_file', 'fps', 'mime_type')
+        fields = ('id', 'width', 'height', 'mission_file', 'fps', 'mime_type')
         read_only_fields = ('width', 'height', 'fps', 'mime_type')
+
+
+class MissionVideoNarrowSerializer(ModelSerializer):
+    class Meta:
+        model = MissionVideo
+        fields = ('id', )
 
 
 class AssetSerializer(ModelSerializer):
@@ -55,6 +61,22 @@ class AssetSerializer(ModelSerializer):
 class MissionSerializer(ModelSerializer):
     geometry = SerializerMethodField()
     mission_file = MissionVideoSerializer()
+
+    class Meta:
+        model = Mission
+        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'mission_file', 'modified')
+        read_only_fields = ('asset', 'geometry')
+
+    def get_geometry(self, obj):
+        if obj.geometry:
+            return json.loads(obj.geometry.geojson)
+        else:
+            return {}
+
+
+class MissionNarrowSerializer(ModelSerializer):
+    geometry = SerializerMethodField()
+    mission_file = MissionVideoNarrowSerializer()
 
     class Meta:
         model = Mission

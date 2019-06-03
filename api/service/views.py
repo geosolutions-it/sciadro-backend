@@ -14,7 +14,7 @@ from service.utils.exception import BadRequestError, BadFileFormatException
 from service.utils.storage_handler import SystemFileStorage
 from service.utils.telemetry import parse_telemetry_data
 from .models import Asset, TelemetryPosition, MissionVideo
-from .serializers import AssetSerializer, TelemetryPositionSerializer
+from .serializers import AssetSerializer, TelemetryPositionSerializer, MissionNarrowSerializer
 from .models import Mission
 from .serializers import MissionSerializer
 from .models import Frame
@@ -125,7 +125,7 @@ class MissionViewSet(ModelViewSet):
         storage_manager.delete_temporary_files()
         convert_task = convert_avi_to_mp4.delay(m.id)
         return Response({
-            'created': MissionSerializer(m).data,
+            'created': MissionNarrowSerializer(m).data,
             'task': {
                 'type': TASK_ENUM.CONVERSION.value,
                 'task_uuid': convert_task.id
