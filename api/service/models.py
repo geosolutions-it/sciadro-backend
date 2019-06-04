@@ -18,8 +18,10 @@ from datetime import datetime
 def upload_to(instance, file_name):
     return f'{instance.id}/{file_name}'
 
+
 def default_asset_name():
     return f'{_("Asset")}_{datetime.utcnow()}'
+
 
 def default_mission_name():
     return f'{_("Mission")}_{datetime.utcnow()}'
@@ -58,7 +60,6 @@ class Asset(Model):
 
 
 class MissionVideo(Model):
-
     class Meta:
         db_table = "mission_video"
 
@@ -66,7 +67,7 @@ class MissionVideo(Model):
     width = IntegerField()
     height = IntegerField()
     mission_file = FileField(upload_to=upload_to)
-    mime_type = CharField(default='video/mp4', max_length=50)
+    mime_type = CharField(default='video/avi', max_length=50)
     fps = FloatField(null=True)
 
 
@@ -88,8 +89,6 @@ class Mission(Model):
     geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
 
 
-
-
 class Frame(Model):
     """Video frame object"""
 
@@ -103,8 +102,6 @@ class Frame(Model):
 
     longitude = FloatField(blank=False, null=False, default=0)
     latitude = FloatField(blank=False, null=False, default=0)
-
-
 
 
 class Anomaly(Model):
@@ -161,7 +158,6 @@ class TelemetryAttribute(Model):
 
 
 class TelemetryPosition(Model):
-
     class Meta:
         db_table = "telemetry_position"
 

@@ -65,14 +65,14 @@ class MissionViewSet(ModelViewSet):
         filtered_qs = self.queryset.filter(asset=self.kwargs.get('asset_uuid')).order_by('pk')
         page = self.paginate_queryset(filtered_qs)
         if page:
-            return self.get_paginated_response(self.serializer_class(page, many=True).data)
-        return Response(self.serializer_class(filtered_qs,
-                                              many=True).data)
+            return self.get_paginated_response(MissionNarrowSerializer(page, many=True).data)
+        return Response(MissionNarrowSerializer(filtered_qs,
+                                                many=True).data)
 
     def retrieve(self, request, *args, **kwargs):
         return Response(
             self.serializer_class(
-                self.queryset.get(pk=self.kwargs.get('pk'))
+                self.queryset.get(pk=self.kwargs.get('pk')), context={'request': request}
             ).data
         )
 
@@ -139,7 +139,7 @@ class VideoStreamView(GenericViewSet, ListModelMixin):
     def list(self, request, *args, **kwargs):
         m = self.queryset.get(id=self.kwargs.get('mission_uuid'))
         with m.mission_file.mission_file.open('rb') as mission_file:
-            response = HttpResponse(mission_file.read(), content_type='video/mp4')
+            response = HttpResponse(mission_file.read(), content_type=['video/mp4', 'video/avi'])
             response['Content-Disposition'] = f'inline; filename={m.mission_file.mission_file.name}'
             return response
 

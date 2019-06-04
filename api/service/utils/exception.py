@@ -1,6 +1,7 @@
 import traceback
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 from django.utils.translation import gettext as _
 from rest_framework import status
 from rest_framework.views import exception_handler
@@ -28,9 +29,9 @@ def api_exception_handler(exc, context):
     response = exception_handler(exc, context)
     tb = traceback.format_exc()
     logger.error(tb)
-    if isinstance(exc, ObjectDoesNotExist):
+    if isinstance(exc, ObjectDoesNotExist) or isinstance(exc, Http404):
         response = Response(status=status.HTTP_400_BAD_REQUEST)
-        response.data = {'details': str(exc)}
+        response.data = {'details': str(exc), 'id': context.get('kwargs', {}).get('pk')}
     if response is not None:
         response.data['status_code'] = response.status_code
     else:
