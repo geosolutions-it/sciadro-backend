@@ -3,15 +3,14 @@ from django.db.models import CharField
 from django.db.models import TextField
 from django.db.models import DateTimeField
 from django.db.models import ForeignKey
-from django.db.models import CASCADE, SET_NULL
+from django.db.models import CASCADE
 from django.db.models import FloatField
 from django.db.models import UUIDField
 from uuid import uuid4
-from django.contrib.gis.db.models import PointField
 from django.db.models import IntegerField
 from django.db.models import FileField
 from django.conf import settings
-from django.contrib.gis.db.models import GeometryField, LineStringField
+from django.contrib.gis.db.models import GeometryField
 from django.utils.translation import gettext as _
 from datetime import datetime
 
@@ -19,8 +18,10 @@ from datetime import datetime
 def upload_to(instance, file_name):
     return f'{instance.id}/{file_name}'
 
+
 def default_asset_name():
     return f'{_("Asset")}_{datetime.utcnow()}'
+
 
 def default_mission_name():
     return f'{_("Mission")}_{datetime.utcnow()}'
@@ -59,15 +60,14 @@ class Asset(Model):
 
 
 class MissionVideo(Model):
-
     class Meta:
         db_table = "mission_video"
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     width = IntegerField()
     height = IntegerField()
-    video_file = FileField(upload_to=upload_to)
-    mime_type = CharField(default='video/mp4', max_length=50)
+    mission_file = FileField(upload_to=upload_to)
+    mime_type = CharField(default='video/avi', max_length=50)
     fps = FloatField(null=True)
 
 
@@ -78,7 +78,7 @@ class Mission(Model):
         db_table = "mission"
 
     asset = ForeignKey(Asset, related_name='missions', on_delete=CASCADE)
-    mission_video = ForeignKey(MissionVideo, null=True, related_name='vid_missions', on_delete=CASCADE)
+    mission_file = ForeignKey(MissionVideo, null=True, related_name='vid_missions', on_delete=CASCADE)
 
     id = UUIDField(primary_key=True, default=uuid4, editable=False)
     name = CharField(max_length=120, blank=False, null=False, default=default_mission_name)
@@ -87,8 +87,6 @@ class Mission(Model):
     created = DateTimeField(auto_now_add=True)
     modified = DateTimeField(auto_now=True)
     geometry = GeometryField(blank=True, null=True, srid=settings.DEFAULT_SRID)
-
-
 
 
 class Frame(Model):
@@ -104,8 +102,6 @@ class Frame(Model):
 
     longitude = FloatField(blank=False, null=False, default=0)
     latitude = FloatField(blank=False, null=False, default=0)
-
-
 
 
 class Anomaly(Model):
@@ -162,7 +158,6 @@ class TelemetryAttribute(Model):
 
 
 class TelemetryPosition(Model):
-
     class Meta:
         db_table = "telemetry_position"
 
