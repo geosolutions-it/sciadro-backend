@@ -29,15 +29,11 @@ class Test(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Asset.objects.count(), 0)
 
-
     def test_asset_create_valid_data(self):
-        Asset.objects.delete()
         url = reverse('assets-list')
         data = {
             "type": "PIP",
             "name": "test1",
-            "created": "2019-06-06T14:25:26.870301Z",
-            "modified": "2019-06-06T14:25:26.870433Z",
             "description": "TESTDESC",
             "note": "TEST ASSET",
             "geometry": {
@@ -58,4 +54,31 @@ class Test(APITestCase):
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Asset.objects.count(), 2)
+
+    def test_asset_create_invalid_data(self):
+        url = reverse('assets-list')
+        data = {
+            "type": "PIP",
+            "name": None,
+            "description": "TESTDESC",
+            "note": "TEST ASSET",
+            "geometry": {
+                "type": "LineString",
+                "coordinates": [
+                    [
+                        10.4374221,
+                        43.6524748
+                    ],
+                    [
+                        1.0,
+                        2.0
+                    ]
+                ]
+            },
+            "missions": [],
+            "type_name": "Pipeline"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Asset.objects.count(), 1)
