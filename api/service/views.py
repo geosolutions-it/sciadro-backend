@@ -1,13 +1,17 @@
-from collections import OrderedDict
+import re
+import mimetypes
+import os
 
+from collections import OrderedDict
 from django.contrib.gis.geos import LineString
-from django.http import HttpResponse
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from django.utils.translation import gettext as _
-
+from wsgiref.util import FileWrapper
+from django.http.response import StreamingHttpResponse
+from service.file_streaming_wrapper import RangeFileWrapper
 from service.tasks import convert_avi_to_mp4, TASK_ENUM
 from service.utils.asset import parse_asset_data
 from service.utils.exception import BadRequestError, BadFileFormatException
@@ -23,9 +27,7 @@ from .models import Anomaly
 from .serializers import AnomalySerializer
 from .models import TelemetryAttribute
 from .serializers import TelemetrySerializer
-
 from django.conf import settings
-import os
 
 
 class ResultsSetPagination(PageNumberPagination):
@@ -137,11 +139,32 @@ class VideoStreamView(GenericViewSet, ListModelMixin):
     queryset = Mission.objects.all()
 
     def list(self, request, *args, **kwargs):
+        range_re = re.compile(r'bytes\s*=\s*(\d+)\s*-\s*(\d*)', re.I)
         m = self.queryset.get(id=self.kwargs.get('mission_uuid'))
-        with m.mission_file.mission_file.open('rb') as mission_file:
-            response = HttpResponse(mission_file.read(), content_type=['video/mp4', 'video/avi'])
-            response['Content-Disposition'] = f'inline; filename={m.mission_file.mission_file.name}'
-            return response
+        range_header = request.META.get('HTTP_RANGE', '').strip()
+        range_match = range_re.match(range_header)
+        file_path = m.mission_file.mission_file.path
+        size = os.path.getsize(file_path)
+        content_type = mimetypes.guess_type(file_path)[0]
+
+        if range_match:
+            first_byte, last_byte = range_match.groups()
+            first_byte = int(first_byte) if first_byte else 0
+            last_byte = int(last_byte) if last_byte else size - 1
+            if last_byte >= size:
+                last_byte = size - 1
+            length = last_byte - first_byte + 1
+
+            resp = StreamingHttpResponse(RangeFileWrapper(open(file_path, 'rb'), offset=first_byte, length=length),
+                                         status=206, content_type=content_type)
+            resp['Content-Length'] = str(length)
+            resp['Content-Range'] = 'bytes %s-%s/%s' % (first_byte, last_byte, size)
+        else:
+            resp = StreamingHttpResponse(FileWrapper(open(file_path, 'rb')), content_type=content_type)
+            resp['Content-Length'] = str(size)
+        resp['Accept-Ranges'] = 'bytes'
+        resp['Content-Disposition'] = f'inline; filename={m.mission_file.mission_file.name.split("/")[1]}'
+        return resp
 
 
 class FrameViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
