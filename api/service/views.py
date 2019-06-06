@@ -45,12 +45,19 @@ class ResultsSetPagination(PageNumberPagination):
         ]))
 
 
+def set_page_size(request, model_view_set):
+    page_size = request.query_params.get(ResultsSetPagination.page_size_query_param)
+    if page_size:
+        model_view_set.pagination_class.page_size = int(page_size)
+
+
 class AssetViewSet(ModelViewSet):
     queryset = Asset.objects.all().order_by('pk')
     serializer_class = AssetSerializer
     pagination_class = ResultsSetPagination
 
     def list(self, request, *args, **kwargs):
+        set_page_size(request, self)
         page = self.paginate_queryset(self.queryset)
         if page:
             return self.get_paginated_response(self.serializer_class(page, many=True).data)
@@ -64,6 +71,7 @@ class MissionViewSet(ModelViewSet):
     pagination_class = ResultsSetPagination
 
     def list(self, request, *args, **kwargs):
+        set_page_size(request, self)
         filtered_qs = self.queryset.filter(asset=self.kwargs.get('asset_uuid')).order_by('pk')
         page = self.paginate_queryset(filtered_qs)
         if page:
@@ -173,6 +181,7 @@ class FrameViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
     pagination_class = ResultsSetPagination
 
     def list(self, request, *args, **kwargs):
+        set_page_size(request, self)
         filtered_qs = self.queryset.filter(
             mission=self.kwargs.get('mission_uuid'),
             mission__asset=self.kwargs.get('asset_uuid')
@@ -234,6 +243,7 @@ class AnomalyViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
     pagination_class = ResultsSetPagination
 
     def list(self, request, *args, **kwargs):
+        set_page_size(request, self)
         filtered_qs = self.queryset.filter(
             frame=self.kwargs.get('frame_uuid'),
             frame__mission=self.kwargs.get('mission_uuid'),
@@ -259,6 +269,7 @@ class AnomalyPerMissionViewSet(GenericViewSet, ListModelMixin):
     pagination_class = ResultsSetPagination
 
     def list(self, request, *args, **kwargs):
+        set_page_size(request, self)
         filtered_qs = self.queryset.filter(
             frame__mission=self.kwargs.get('mission_uuid'),
             frame__mission__asset=self.kwargs.get('asset_uuid')

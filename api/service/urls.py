@@ -27,6 +27,6 @@ schema_view = get_swagger_view(title='SCIADRO API')
 
 urlpatterns = [
     path('', include(router.urls)),
-    url(r'^swagger$', schema_view),
+    url(r'swagger', schema_view),
     path('celery/status/<uuid:task_id>', VideoConversionStatus.as_view())
 ]
