@@ -1,7 +1,7 @@
 import json
 
 from django.contrib.gis.geos import LineString, Point
-from rest_framework.serializers import ModelSerializer, SerializerMethodField, JSONField, IntegerField, FileField
+from rest_framework.serializers import ModelSerializer, SerializerMethodField, JSONField, IntegerField, FileField, CharField
 
 from .models import Asset, TelemetryPosition, MissionVideo
 from .models import Mission
@@ -54,6 +54,7 @@ class MissionVideoNarrowSerializer(ModelSerializer):
 class AssetSerializer(ModelSerializer):
     geometry = GeometryField(source='*')
     type_name = SerializerMethodField()
+    name = CharField(required=True)
 
     class Meta:
         model = Asset
@@ -68,6 +69,8 @@ class AssetSerializer(ModelSerializer):
 class MissionSerializer(ModelSerializer):
     geometry = SerializerMethodField()
     mission_file = MissionVideoSerializer()
+
+    name = CharField(required=True)
 
     class Meta:
         model = Mission
