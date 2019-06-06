@@ -1,7 +1,7 @@
 import json
 
 from django.contrib.gis.geos import LineString, Point
-from rest_framework.serializers import ModelSerializer, SerializerMethodField, JSONField, IntegerField
+from rest_framework.serializers import ModelSerializer, SerializerMethodField, JSONField, IntegerField, FileField
 
 from .models import Asset, TelemetryPosition, MissionVideo
 from .models import Mission
@@ -18,21 +18,37 @@ class GeometryField(JSONField):
         return {}
 
     def to_internal_value(self, data):
-        geom_json = json.loads(data)
+        if isinstance(data, str):
+            geom_json = json.loads(data)
+        else:
+            geom_json = data
         if geom_json:
             coords = geom_json.get('coordinates')
             ret = {
-                "geometry":  Point(coords)if geom_json.get('type') == 'Point' else LineString(coords)
+                "geometry": Point(coords) if geom_json.get('type') == 'Point' else LineString(coords)
             }
             return ret
         return {}
 
 
 class MissionVideoSerializer(ModelSerializer):
+    mission_file_url = SerializerMethodField()
+    mission_file = FileField(write_only=True)
+
     class Meta:
         model = MissionVideo
-        fields = ('width', 'height', 'video_file', 'fps', 'mime_type')
+        fields = ('id', 'width', 'height', 'mission_file', 'fps', 'mime_type', 'mission_file_url')
         read_only_fields = ('width', 'height', 'fps', 'mime_type')
+
+    def get_mission_file_url(self, obj):
+        return f'''{self.context.get("request").scheme}://{self.context.get("request").META.get(
+            "HTTP_HOST")}/{obj.mission_file.url}'''
+
+
+class MissionVideoNarrowSerializer(ModelSerializer):
+    class Meta:
+        model = MissionVideo
+        fields = ('id',)
 
 
 class AssetSerializer(ModelSerializer):
@@ -51,11 +67,27 @@ class AssetSerializer(ModelSerializer):
 
 class MissionSerializer(ModelSerializer):
     geometry = SerializerMethodField()
-    mission_video = MissionVideoSerializer()
+    mission_file = MissionVideoSerializer()
 
     class Meta:
         model = Mission
-        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'mission_video', 'modified')
+        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'mission_file', 'modified')
+        read_only_fields = ('asset', 'geometry')
+
+    def get_geometry(self, obj):
+        if obj.geometry:
+            return json.loads(obj.geometry.geojson)
+        else:
+            return {}
+
+
+class MissionNarrowSerializer(ModelSerializer):
+    geometry = SerializerMethodField()
+    mission_file = MissionVideoNarrowSerializer()
+
+    class Meta:
+        model = Mission
+        fields = ('id', 'created', 'name', 'description', 'note', 'geometry', 'asset', 'mission_file', 'modified')
         read_only_fields = ('asset', 'geometry')
 
     def get_geometry(self, obj):
