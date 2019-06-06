@@ -31,5 +31,10 @@ services:
     volumes:
       - static_volume:/code/static
 
+  frontend:
+    image: geosolutionsit/mapstore2:SCIADRO-2018.01.00
+    ports:
+      - 8082:8080
+
 volumes:
   static_volume:
