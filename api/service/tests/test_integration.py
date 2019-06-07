@@ -5,7 +5,7 @@ from rest_framework.test import APITestCase
 from service.models import Asset
 
 
-class Test(APITestCase):
+class TestAssetCRUD(APITestCase):
     fixtures = ['asset', ]
 
     def test_asset_list(self):
@@ -82,3 +82,28 @@ class Test(APITestCase):
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Asset.objects.count(), 1)
+
+
+class TestMissionCRUD(APITestCase):
+
+    fixtures = ['mission']
+
+    #todo: to test mission creation, consider unit testing wit file mock
+
+    def test_mission_list(self):
+        url = reverse('missions-list', kwargs={
+            'asset_uuid': '3d1ab96d-7b7c-4c95-8c5b-ade2d20e0919'
+        })
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json().get('results', [])), 1)
+
+    def test_mission_detail(self):
+        url = reverse('missions-detail', kwargs={
+            'asset_uuid': '3d1ab96d-7b7c-4c95-8c5b-ade2d20e0919',
+            'pk': 'd69032c2-3e3d-408b-9880-1e36a58203ba'
+        })
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+class Test
