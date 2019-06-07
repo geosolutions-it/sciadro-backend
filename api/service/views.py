@@ -49,6 +49,8 @@ def set_page_size(request, model_view_set):
     page_size = request.query_params.get(ResultsSetPagination.page_size_query_param)
     if page_size:
         model_view_set.pagination_class.page_size = int(page_size)
+    else:
+        model_view_set.pagination_class.page_size = 10
 
 
 class AssetViewSet(ModelViewSet):
