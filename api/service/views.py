@@ -89,9 +89,9 @@ class MissionViewSet(ModelViewSet):
         )
 
     def create(self, request, *args, **kwargs):
-        file_type = 'application/zip'
+        file_type = ['application/zip', 'application/x-zip', 'application/x-zip-compressed', 'application/octet-stream', 'application/x-compress','application/x-compressed', 'multipart/x-zip']
         file = self.request.FILES.get('mission_file.mission_file')
-        if file.content_type != file_type or file.content_type != 'application/x-zip' or file.content_type != 'application/x-zip-compressed' or file.content_type != 'application/octet-stream' or file.content_type != 'application/x-compress' or file.content_type != 'application/x-compressed' or file.content_type != 'multipart/x-zip':
+        if file.content_type not in file_type:
             raise BadFileFormatException(_('Only application/x-zip, application/x-zip-compressed, application/octet-stream, application/x-compress, application/x-compressed and multipart/x-zip mime type are allowed'))
 
         file_name = file.name
