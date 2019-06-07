@@ -91,8 +91,8 @@ class MissionViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         file_type = 'application/zip'
         file = self.request.FILES.get('mission_file.mission_file')
-        if file.content_type != file_type:
-            raise BadFileFormatException(_('Only zip file is allowed'))
+        if file.content_type != file_type or file.content_type != 'application/x-zip' or file.content_type != 'application/x-zip-compressed' or file.content_type != 'application/octet-stream' or file.content_type != 'application/x-compress' or file.content_type != 'application/x-compressed' or file.content_type != 'multipart/x-zip':
+            raise BadFileFormatException(_('Only application/x-zip, application/x-zip-compressed, application/octet-stream, application/x-compress, application/x-compressed and multipart/x-zip mime type are allowed'))
 
         file_name = file.name
         temporary_file_location = os.path.join(settings.MEDIA_ROOT, self.kwargs.get('asset_uuid'), file_name)
