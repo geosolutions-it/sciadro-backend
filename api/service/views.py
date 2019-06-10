@@ -49,6 +49,8 @@ def set_page_size(request, model_view_set):
     page_size = request.query_params.get(ResultsSetPagination.page_size_query_param)
     if page_size:
         model_view_set.pagination_class.page_size = int(page_size)
+    else:
+        model_view_set.pagination_class.page_size = 10
 
 
 class AssetViewSet(ModelViewSet):
@@ -87,10 +89,10 @@ class MissionViewSet(ModelViewSet):
         )
 
     def create(self, request, *args, **kwargs):
-        file_type = 'application/zip'
+        file_type = ['application/zip', 'application/x-zip', 'application/x-zip-compressed', 'application/octet-stream', 'application/x-compress','application/x-compressed', 'multipart/x-zip']
         file = self.request.FILES.get('mission_file.mission_file')
-        if file.content_type != file_type:
-            raise BadFileFormatException(_('Only zip file is allowed'))
+        if file.content_type not in file_type:
+            raise BadFileFormatException(_('Only application/x-zip, application/x-zip-compressed, application/octet-stream, application/x-compress, application/x-compressed and multipart/x-zip mime type are allowed'))
 
         file_name = file.name
         temporary_file_location = os.path.join(settings.MEDIA_ROOT, self.kwargs.get('asset_uuid'), file_name)
