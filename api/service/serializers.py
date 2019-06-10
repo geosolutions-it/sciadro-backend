@@ -52,7 +52,7 @@ class MissionVideoNarrowSerializer(ModelSerializer):
 
 
 class AssetSerializer(ModelSerializer):
-    geometry = GeometryField(source='*')
+    geometry = GeometryField(source='*', required=False)
     type_name = SerializerMethodField()
     name = CharField(required=True)
 
