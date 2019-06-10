@@ -236,7 +236,7 @@ class TelemetryViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
                     TelemetryAttribute.objects.get(pk=self.kwargs.get('pk'))
                 ).data
             )
-        raise BadRequestError('Telemetry type is required')
+        raise BadRequestError('Telemetry type is required (att or pos)')
 
 
 class AnomalyViewSet(GenericViewSet, RetrieveModelMixin, ListModelMixin):
