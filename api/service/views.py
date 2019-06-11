@@ -167,6 +167,14 @@ class MissionViewSet(ModelViewSet):
             }
         })
 
+    def update(self, request, *args, **kwargs):
+        mission = self.queryset.get(pk=self.kwargs.get('pk'))
+        serializer = self.serializer_class(mission, data=request.data, partial=True, context={'request': request})
+        if not serializer.is_valid():
+            raise BadRequestError(serializer.errors)
+        serializer.update(mission, request.data)
+        return Response(serializer.data)
+
 
 class VideoStreamView(GenericViewSet, ListModelMixin):
     queryset = Mission.objects.all()
