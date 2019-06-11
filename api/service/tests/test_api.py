@@ -19,7 +19,14 @@ class AssetTests(BaseTest):
     def test_create_asset(self) -> None:
         response = self.client.post(
             reverse('assets-list'),
-            {'name': 'test_asset', 'type': 'POW', 'geometry': "{\"coordinates\": [[1, 1], [2, 2]]}"},
+            {
+                'name': 'test_asset',
+                'type': 'POW',
+                'geometry': {
+                    'type': 'LineString',
+                    'coordinates': [[1, 1], [2, 2]]
+                }
+            },
             format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

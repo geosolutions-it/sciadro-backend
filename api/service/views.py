@@ -4,6 +4,7 @@ import os
 
 from collections import OrderedDict
 from django.contrib.gis.geos import LineString
+from rest_framework import status
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -67,7 +68,7 @@ class AssetViewSet(ModelViewSet):
         if 'geometry' in request.data and request.data.get('geometry') is not None:
             request.data.update({'geometry': GEOSGeometry(str(request.data.get('geometry')))})
         a = serializer.create(request.data)
-        return Response(self.serializer_class(a).data)
+        return Response(self.serializer_class(a).data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         set_page_size(request, self)
