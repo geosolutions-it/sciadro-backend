@@ -17,7 +17,7 @@ class AStorageManager(ABC):
     def __init__(self, file_name, file_path):
         self.file_name = file_name.split('.')[0]
         self.file_path = file_path
-        self.temp_dir_path = file_path.split('.')[0]
+        self.temp_dir_path = file_path.split('.')[0] + 'temp'
 
     @abstractmethod
     def save_temporary_file(self, file):
