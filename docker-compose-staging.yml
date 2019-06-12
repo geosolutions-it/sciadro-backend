@@ -13,6 +13,7 @@ services:
     volumes:
       - ./api:/code
       - static_volume:/code/static
+      - media_volume:/code/data
     expose:
       - 8000
     depends_on:
@@ -30,6 +31,7 @@ services:
       - api
     volumes:
       - static_volume:/code/static
+      - media_volume:/code/data
 
   frontend:
     image: geosolutionsit/mapstore2:SCIADRO-2018.01.00
@@ -38,3 +40,4 @@ services:
 
 volumes:
   static_volume:
+  media_volume:

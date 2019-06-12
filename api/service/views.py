@@ -4,6 +4,7 @@ import os
 
 from collections import OrderedDict
 from django.contrib.gis.geos import LineString
+from rest_framework import status
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -18,6 +19,7 @@ from service.utils.exception import BadRequestError, BadFileFormatException
 from service.utils.storage_handler import SystemFileStorage
 from service.utils.telemetry import parse_telemetry_data
 from .models import Asset, TelemetryPosition, MissionVideo
+from django.contrib.gis.geos import GEOSGeometry
 from .serializers import AssetSerializer, TelemetryPositionSerializer, MissionNarrowSerializer
 from .models import Mission
 from .serializers import MissionSerializer
@@ -58,6 +60,16 @@ class AssetViewSet(ModelViewSet):
     serializer_class = AssetSerializer
     pagination_class = ResultsSetPagination
 
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        serializer = self.serializer_class(data=data)
+        if not serializer.is_valid():
+            raise BadRequestError(serializer.errors)
+        if 'geometry' in request.data and request.data.get('geometry') is not None:
+            request.data.update({'geometry': GEOSGeometry(str(request.data.get('geometry')))})
+        a = serializer.create(request.data)
+        return Response(self.serializer_class(a).data, status=status.HTTP_201_CREATED)
+
     def list(self, request, *args, **kwargs):
         set_page_size(request, self)
         page = self.paginate_queryset(self.queryset)
@@ -65,6 +77,16 @@ class AssetViewSet(ModelViewSet):
             return self.get_paginated_response(self.serializer_class(page, many=True).data)
         return Response(self.serializer_class(self.queryset,
                                               many=True).data)
+
+    def update(self, request, *args, **kwargs):
+        asset = self.queryset.get(pk=self.kwargs.get('pk'))
+        serializer = self.serializer_class(asset, data=request.data, partial=True)
+        if not serializer.is_valid():
+            raise BadRequestError(serializer.errors)
+        if 'geometry' in request.data and request.data.get('geometry') is not None:
+            request.data.update({'geometry': GEOSGeometry(str(request.data.get('geometry')))})
+        serializer.update(asset, request.data)
+        return Response(serializer.data)
 
 
 class MissionViewSet(ModelViewSet):
@@ -89,10 +111,12 @@ class MissionViewSet(ModelViewSet):
         )
 
     def create(self, request, *args, **kwargs):
-        file_type = ['application/zip', 'application/x-zip', 'application/x-zip-compressed', 'application/octet-stream', 'application/x-compress','application/x-compressed', 'multipart/x-zip']
+        file_type = ['application/zip', 'application/x-zip', 'application/x-zip-compressed', 'application/octet-stream',
+                     'application/x-compress', 'application/x-compressed', 'multipart/x-zip']
         file = self.request.FILES.get('mission_file.mission_file')
         if file.content_type not in file_type:
-            raise BadFileFormatException(_('Only application/x-zip, application/x-zip-compressed, application/octet-stream, application/x-compress, application/x-compressed and multipart/x-zip mime type are allowed'))
+            raise BadFileFormatException(_(
+                'Only application/x-zip, application/x-zip-compressed, application/octet-stream, application/x-compress, application/x-compressed and multipart/x-zip mime type are allowed'))
 
         file_name = file.name
         temporary_file_location = os.path.join(settings.MEDIA_ROOT, self.kwargs.get('asset_uuid'), file_name)
@@ -143,6 +167,14 @@ class MissionViewSet(ModelViewSet):
                 'task_uuid': convert_task.id
             }
         })
+
+    def update(self, request, *args, **kwargs):
+        mission = self.queryset.get(pk=self.kwargs.get('pk'))
+        serializer = self.serializer_class(mission, data=request.data, partial=True, context={'request': request})
+        if not serializer.is_valid():
+            raise BadRequestError(serializer.errors)
+        serializer.update(mission, request.data)
+        return Response(serializer.data)
 
 
 class VideoStreamView(GenericViewSet, ListModelMixin):
