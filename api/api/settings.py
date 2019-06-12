@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'service',
     'rest_framework_swagger',
+    'fixture_magic'
 ]
 
 MIDDLEWARE = [
