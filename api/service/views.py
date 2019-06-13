@@ -19,7 +19,6 @@ from service.utils.exception import BadRequestError, BadFileFormatException
 from service.utils.storage_handler import SystemFileStorage
 from service.utils.telemetry import parse_telemetry_data
 from .models import Asset, TelemetryPosition, MissionVideo
-from django.contrib.gis.geos import GEOSGeometry
 from .serializers import AssetSerializer, TelemetryPositionSerializer, MissionNarrowSerializer
 from .models import Mission
 from .serializers import MissionSerializer
@@ -61,13 +60,10 @@ class AssetViewSet(ModelViewSet):
     pagination_class = ResultsSetPagination
 
     def create(self, request, *args, **kwargs):
-        data = request.data
-        serializer = self.serializer_class(data=data)
+        serializer = self.serializer_class(data=request.data)
         if not serializer.is_valid():
             raise BadRequestError(serializer.errors)
-        if 'geometry' in request.data and request.data.get('geometry') is not None:
-            request.data.update({'geometry': GEOSGeometry(str(request.data.get('geometry')))})
-        a = serializer.create(request.data)
+        a = serializer.create(serializer.validated_data)
         return Response(self.serializer_class(a).data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
@@ -83,9 +79,7 @@ class AssetViewSet(ModelViewSet):
         serializer = self.serializer_class(asset, data=request.data, partial=True)
         if not serializer.is_valid():
             raise BadRequestError(serializer.errors)
-        if 'geometry' in request.data and request.data.get('geometry') is not None:
-            request.data.update({'geometry': GEOSGeometry(str(request.data.get('geometry')))})
-        serializer.update(asset, request.data)
+        serializer.update(asset, serializer.validated_data)
         return Response(serializer.data)
 
 
