@@ -1,0 +1,15 @@
+[
+{
+    "model": "service.asset",
+    "pk": "783cc226-bf04-4ef1-8b32-667888b6378b",
+    "fields": {
+        "type": "PIP",
+        "name": "dwrerrt",
+        "created": "2019-05-29T14:22:39.547Z",
+        "modified": "2019-05-29T14:22:39.547Z",
+        "description": "",
+        "note": "",
+        "geometry": "SRID=4326;LINESTRING (10.4374221 43.6524748, 1 2)"
+    }
+}
+]
