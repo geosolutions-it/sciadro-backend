@@ -4,6 +4,9 @@ services:
   db:
     image: kartoza/postgis:11.0-2.5
 
+    volumes:
+      - ./postgres_data:/var/lib/postgresql
+
   rabbit-mq:
     image: rabbitmq:3.7
 
@@ -14,8 +17,6 @@ services:
       - ./api:/code
       - static_volume:/code/static
       - media_volume:/code/data
-    expose:
-      - 8000
     depends_on:
       - db
       - rabbit-mq
@@ -26,7 +27,7 @@ services:
   nginx:
     build: ./nginx
     ports:
-      - 8081:8081
+      - 80:80
     depends_on:
       - api
     volumes:
@@ -35,8 +36,6 @@ services:
 
   frontend:
     image: geosolutionsit/mapstore2:SCIADRO-2018.01.00
-    ports:
-      - 8082:8080
 
 volumes:
   static_volume:
