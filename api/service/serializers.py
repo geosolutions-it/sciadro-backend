@@ -1,11 +1,26 @@
 import json
-from rest_framework.serializers import ModelSerializer, SerializerMethodField, IntegerField, FileField, CharField
+from rest_framework.serializers import ModelSerializer, SerializerMethodField, IntegerField, FileField, CharField, \
+    Field, JSONField
 
 from .models import Asset, TelemetryPosition, MissionVideo
 from .models import Mission
 from .models import Frame
 from .models import Anomaly
 from .models import TelemetryAttribute
+from django.contrib.gis.geos import GEOSGeometry
+
+
+class GeometryField(Field):
+
+    def to_representation(self, value):
+        if value:
+            return json.loads(value.geojson)
+        return None
+
+    def to_internal_value(self, data):
+        if data and data != '' and data != 'null':
+            return GEOSGeometry(str(data))
+        return None
 
 
 class MissionVideoSerializer(ModelSerializer):
@@ -29,11 +44,10 @@ class MissionVideoNarrowSerializer(ModelSerializer):
 
 
 class AssetSerializer(ModelSerializer):
-    geometry = SerializerMethodField()
+    geometry = GeometryField()
+    # geo_json = SerializerMethodField()
     type_name = SerializerMethodField()
     name = CharField(required=True)
-
-
 
     class Meta:
         model = Asset
@@ -44,13 +58,11 @@ class AssetSerializer(ModelSerializer):
     def get_type_name(self, obj):
         return list(filter(lambda x: x[0] == obj.type, Asset.TYPE_CHOICES))[0][1]
 
-    def get_geometry(self, obj):
+    def get_geo_json(self, obj):
         if obj.geometry:
             return json.loads(obj.geometry.geojson)
         else:
             return {}
-
-
 
 
 class MissionSerializer(ModelSerializer):
