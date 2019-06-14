@@ -44,8 +44,7 @@ class MissionVideoNarrowSerializer(ModelSerializer):
 
 
 class AssetSerializer(ModelSerializer):
-    geometry = GeometryField()
-    # geo_json = SerializerMethodField()
+    geometry = GeometryField(required=False)
     type_name = SerializerMethodField()
     name = CharField(required=True)
 
@@ -57,12 +56,6 @@ class AssetSerializer(ModelSerializer):
 
     def get_type_name(self, obj):
         return list(filter(lambda x: x[0] == obj.type, Asset.TYPE_CHOICES))[0][1]
-
-    def get_geo_json(self, obj):
-        if obj.geometry:
-            return json.loads(obj.geometry.geojson)
-        else:
-            return {}
 
 
 class MissionSerializer(ModelSerializer):
