@@ -35,8 +35,14 @@ services:
       - media_volume:/code/data
 
   frontend:
-    image: geosolutionsit/mapstore2:SCIADRO-2018.01.00
+    image: geosolutionsit/mapstore2:SCIADRO-2019.01.01
 
 volumes:
   static_volume:
   media_volume:
+
+networks:
+    my_bridge:
+        driver: bridge
+        driver_opts:
+            com.docker.network.bridge.name: sciadro-network
