@@ -2,7 +2,7 @@ amqp==2.4.2
 billiard==3.6.0.0
 celery==4.3.0
 coverage==4.5.3
-Django==2.2
+Django==2.2.8
 djangorestframework==3.9.2
 drf-nested-routers==0.91
 kombu==4.5.0
