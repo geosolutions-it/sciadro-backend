@@ -1,6 +1,6 @@
 amqp==2.4.2
 billiard==3.6.0.0
-celery==4.3.0
+celery==5.2.2
 coverage==4.5.3
 Django==2.2
 djangorestframework==3.9.2
